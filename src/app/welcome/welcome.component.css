@@ -1,0 +1,18 @@
+.main-heading{
+    text-align: center;
+    font-size: 5em;
+    background-color: gold;
+    position: fixed;
+    top: 10%;
+    left:50%;
+    transform: translateX(-50%);
+}
+.sub-heading{
+    text-align: center;
+    font-size: 1.8em;
+    background-color:gold;
+    position: fixed;
+    top: 22%;
+    left:50%;
+    transform: translateX(-50%);
+}

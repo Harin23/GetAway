@@ -1,26 +1,24 @@
-.main-heading{
-    text-align: center;
-    font-size: 5em;
-    background-color: gold;
-}
-.sub-heading{
-    text-align: center;
-    font-size: 2em;
-    background-color:gold;
-}
 .host-b{
     background: gold;
-    font-size: 4em;
-    position: fixed;
-    top: 50%;
-    left: 30%;
+    font-size: 2em;
+    border-style: outset;
+    padding:1%;
+    margin-left: 5px;
+
 }
 .join-b{
     background: gold;
-    font-size: 4em;
-    position: fixed;
-    top: 50%;
-    right: 30%;
+    font-size: 2em;
+    border-style: outset;
+    padding:1%;
+    margin-left: 5px;
+}
+.welcome-b{
+    background: gold;
+    font-size: 2em;
+    border-style: outset;
+    padding:1%;
+    margin-left: 5px;
 }
 body{
     background-color: purple;
