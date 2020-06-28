@@ -7,6 +7,7 @@ import { HostComponent } from './host/host.component';
 import { JoinComponent } from './join/join.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { GameviewComponent } from './gameview/gameview.component';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     HostComponent,
     JoinComponent,
     WelcomeComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    GameviewComponent
   ],
   imports: [
     BrowserModule,

@@ -16,3 +16,10 @@
     left:50%;
     transform: translateX(-50%);
 }
+.button{
+    background: gold;
+    font-size: 2em;
+    border-style: outset;
+    padding:1%;
+    margin-left: 5px;
+}
