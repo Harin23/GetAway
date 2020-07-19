@@ -8,6 +8,8 @@ import { JoinComponent } from './join/join.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { GameviewComponent } from './gameview/gameview.component';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,9 @@ import { GameviewComponent } from './gameview/gameview.component';
     JoinComponent,
     WelcomeComponent,
     PageNotFoundComponent,
-    GameviewComponent
+    GameviewComponent,
+    LoginComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,
