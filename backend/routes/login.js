@@ -1,15 +1,15 @@
-const express = require('express')
+const express = require('express');
 const jwt = require('jsonwebtoken')
-const router = express.Router()
-const mongoose = require('mongoose')
-const user_model = require('../models/user')
-const user = require('../models/user')
+const router = express.Router();
+const mongoose = require('mongoose');
+const userModel = require('../models/user');
+
 
 //connect to db
 db_uri = "mongodb+srv://harin_getaway_game24:vWey6Oa4D9wOzDY7@getaway.svfza.mongodb.net/getaway-users?retryWrites=true&w=majority"
-mongoose.connect(db_uri, err => {
-    if (err){
-        console.log(err)
+mongoose.connect(db_uri, error => {
+    if (error){
+        console.log(error)
     } else {
         console.log('Connected to mongoDB')
     }
@@ -38,16 +38,16 @@ router.post('/', (req,res) => {
 //this is the /login/resgister route:
 router.post('/register', (req,res) => {
         let userinfo = req.body
-        let user = new user_model(userinfo)
-        user.save(err, registeredUser => {
-            if (err){
-                console.log(err)
-            } else {
-                let payload = { subject: registeredUser._id }
-                let token = jwt.sign(payload, 'secretKey')
-                res.status(200).send(token)
-            }
-        })
+        let user = new userModel(userinfo)
+        user.save()
+          .then(registeredUser => {
+            let payload = { subject: registeredUser._id }
+            let token = jwt.sign(payload, 'secretKey')
+            res.status(200).send(token)
+          })
+          .catch(err => {
+            res.status(400).send(err);
+          });
     });
 
 module.exports = router
