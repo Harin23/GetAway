@@ -16,10 +16,21 @@
     left:50%;
     transform: translateX(-50%);
 }
-.button{
+.button1{
     background: gold;
     font-size: 2em;
     border-style: outset;
     padding:1%;
-    margin-left: 5px;
+    position: fixed;
+    top: 75%;
+    left: 35%;
+}
+.button2{
+    background: gold;
+    font-size: 2em;
+    border-style: outset;
+    padding:1%;
+    position: fixed;
+    top: 75%;
+    right: 35%;
 }
