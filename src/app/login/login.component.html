@@ -1,9 +1,16 @@
-<form class="LR-form">
-    <label for="username">Username or Email:</label><br>
-    <input type="text" id="username" name="username" placeholder="HSB@email.ca"><br>
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password"><br>
-    <button class="LR-button">Login</button>
-    <input type="checkbox" id="remember-me" name="remember-me-checkbox" value="True">
-    <label for="remember-me" class="remember-me"> Remember Me!</label>
+<form class="container bg-info">
+    <div class="form-group">
+      <label for="exampleInputEmail1">Username</label>
+      <input [(ngModel)]="loginData.userid" type="email" class="form-control" name="email" aria-describedby="email">
+      <small id="emailHelp" class="form-text">You can also use your email address if you forgot your username.</small>
+    </div>
+    <div class="form-group">
+      <label for="exampleInputPassword1">Password</label>
+      <input [(ngModel)]="loginData.password" type="password" class="form-control" name="password">
+    </div>
+    <div class="form-group form-check">
+      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+      <label class="form-check-label" for="exampleCheck1">Remember Me</label>
+    </div>
+    <button (click)="loginUser()" type="submit" class="btn btn-primary">Login</button>
 </form>

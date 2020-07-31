@@ -1,11 +1,19 @@
-<form class="LR-form">
-    <label for="username">Enter your username:</label><br>
-    <input [(ngModel)]="registerUserData.username" type="text" name="username" placeholder="Harin24"><br>
-    <label for="email">Enter your email:</label><br>
-    <input [(ngModel)]="registerUserData.email" type="email" name="email" placeholder="HSB@email.ca"><br>
-    <label for="password">Choose a password:</label><br>
-    <input [(ngModel)]="registerUserData.password" type="password" name="password"><br>
-    <button (click)="registerUser()" class="LR-button">Login</button>
-    <input type="checkbox" id="remember-me" name="remember-me-checkbox" value="True">
-    <label for="remember-me" class="remember-me"> Remember Me!</label>
+<form class="container bg-info">
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input [(ngModel)]="registerUserData.email" type="email" class="form-control" name="email" aria-describedby="email" placeholder="harin@email.com">
+    </div>
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input [(ngModel)]="registerUserData.username" type="username" class="form-control" name="username" aria-describedby="username" placeholder="harin23">
+      </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input [(ngModel)]="registerUserData.password" type="password" class="form-control" name="password">
+    </div>
+    <div class="form-group form-check">
+      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+      <label class="form-check-label" for="exampleCheck1">Remember Me</label>
+    </div>
+    <button (click)="registerUser()" type="submit" class="btn btn-primary">Register</button>
 </form>
