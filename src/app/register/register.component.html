@@ -1,15 +1,18 @@
-<form class="container bg-info">
+<form class="container bg-info" #regForm="ngForm">
     <div class="form-group">
       <label for="email">Email</label>
-      <input [(ngModel)]="registerUserData.email" type="email" class="form-control" name="email" aria-describedby="email" placeholder="harin@email.com">
+      <input [(ngModel)]="registerUserData.email" type="email" #email="ngModel" [class.is-invalid]="email.invalid && email.touched" class="form-control" name="email" aria-describedby="email" placeholder="harin@email.com" email required>
+      <small class="text-danger" [class.d-none]="email.valid || email.untouched">An email address is required.</small>
     </div>
     <div class="form-group">
         <label for="username">Username</label>
-        <input [(ngModel)]="registerUserData.username" type="username" class="form-control" name="username" aria-describedby="username" placeholder="harin23">
+        <input [(ngModel)]="registerUserData.username" type="username" #username="ngModel" [class.is-invalid]="username.invalid && username.touched" pattern="[a-zA-Z0-9]*" class="form-control" name="username" aria-describedby="username" placeholder="harin23" required>
+        <small class="text-danger" [class.d-none]="username.valid || username.untouched">Your username cannot be blank and cannot contain any special characters or spaces. Use letters and numbers only please.</small>
       </div>
     <div class="form-group">
       <label for="password">Password</label>
-      <input [(ngModel)]="registerUserData.password" type="password" class="form-control" name="password">
+      <input [(ngModel)]="registerUserData.password" type="password" #password="ngModel" [class.is-invalid]="password.invalid && password.touched" class="form-control" name="password" required>
+      <small class="text-danger" [class.d-none]="password.valid || password.untouched">Password is required.</small>
     </div>
     <div class="form-group form-check">
       <input type="checkbox" class="form-check-input" id="exampleCheck1">

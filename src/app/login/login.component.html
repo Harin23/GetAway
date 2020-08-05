@@ -1,12 +1,13 @@
 <form class="container bg-info">
     <div class="form-group">
-      <label for="exampleInputEmail1">Username</label>
-      <input [(ngModel)]="loginData.userid" type="email" class="form-control" name="email" aria-describedby="email">
-      <small id="emailHelp" class="form-text">You can also use your email address if you forgot your username.</small>
+      <label for="userid">Username</label>
+      <input [(ngModel)]="loginData.userid" type="userid" #userid="ngModel" [class.is-invalid]="userid.invalid && userid.touched" class="form-control" name="userid" aria-describedby="username or email" placeholder="username or email" required>
+      <small class="text-danger" [class.d-none]="userid.valid || userid.untouched">Please enter your username or email.</small>
     </div>
     <div class="form-group">
-      <label for="exampleInputPassword1">Password</label>
-      <input [(ngModel)]="loginData.password" type="password" class="form-control" name="password">
+      <label for="password">Password</label>
+      <input [(ngModel)]="loginData.password" type="password" #password="ngModel" [class.is-invalid]="password.invalid && password.touched" class="form-control" name="password" required>
+      <small class="text-danger" [class.d-none]="password.valid || password.untouched">Password is required.</small>
     </div>
     <div class="form-group form-check">
       <input type="checkbox" class="form-check-input" id="exampleCheck1">

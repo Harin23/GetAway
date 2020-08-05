@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../auth.service";
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-register',
@@ -7,6 +8,9 @@ import { AuthService } from "../auth.service";
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
+
+  username = document.getElementById("username")
+  regform = document.getElementById("regform")
 
   registerUserData:any = {}
   constructor(private _auth: AuthService) { }
@@ -22,3 +26,6 @@ export class RegisterComponent implements OnInit {
       )
   }
 }
+
+//regform = document.getElementById("regForm").addEventListener("keypress", () => {});
+//  regform.addEventListener("keypress", () => {})
