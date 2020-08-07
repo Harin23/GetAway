@@ -1,4 +1,4 @@
-<form class="container bg-info" [formGroup]=registrationForm>
+<form class="container bg-dark text-white" [formGroup]=registrationForm>
     <div class="form-group">
       <label for="email">Email</label>
       <input formControlName="email" type="email" [class.is-invalid]="email.invalid && email.touched" class="form-control" name="email" aria-describedby="email" placeholder="harin@email.com" email required>
@@ -8,26 +8,26 @@
         <label for="username">Username</label>
         <input formControlName="username" type="username" [class.is-invalid]="username.invalid && username.touched" class="form-control" name="username" aria-describedby="username" placeholder="harin23" required>
         <div *ngIf="username.invalid && username.touched">
-          <small *ngIf="username.errors?.required" class="text-danger">Username is required.</small>
-          <small *ngIf="username.errors?.minlength" class="text-danger">The minimum length for a username is 3.</small>
+          <small *ngIf="username.errors?.pattern" class="text-danger">Allowed characters include numbers, lowercase letters and uppercase letters.<br></small>
+          <small *ngIf="username.errors?.required" class="text-danger">Username is required.<br></small>
+          <small *ngIf="username.errors?.minlength" class="text-danger">The minimum length for a username is 3.<br></small>
           <small *ngIf="username.errors?.maxlength" class="text-danger">The maxlength for a username is 15.</small>
-          <small *ngIf="username.errors?.pattern" class="text-danger">Allowed characters include numbers, lowercase letters and uppercase letters.</small>
         </div> 
       </div>
     <div class="form-group">
       <label for="password">Password</label>
       <input formControlName="password" type="password" [class.is-invalid]="password.invalid && password.touched" class="form-control" name="password" required>
       <div *ngIf="password.invalid && password.touched">
+        <small *ngIf="password.errors?.maxlength" class="text-danger">The maxlength for a password is 15.</small>
         <small *ngIf="password.errors?.required" class="text-danger">password is required.</small>
         <small *ngIf="password.errors?.minlength" class="text-danger">The minimum length for a password is 4.</small>
-        <small *ngIf="password.errors?.maxlength" class="text-danger">The maxlength for a password is 15.</small>
       </div> 
     </div>
     <div class="form-group form-check">
       <input type="checkbox" class="form-check-input" id="exampleCheck1">
       <label class="form-check-label" for="exampleCheck1">Remember Me</label>
     </div>
-    <button type="submit" class="btn btn-primary">Register</button>
+    <button (click)="registerUser()" type="submit" class="btn btn-primary">Register</button>
 </form>
 
 
