@@ -7,16 +7,37 @@ import { PageNotFoundComponent } from "./page-not-found/page-not-found.component
 import { GameviewComponent } from "./gameview/gameview.component";
 import { LoginComponent } from "./login/login.component";
 import { RegisterComponent } from "./register/register.component";
+import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
-  {path: '', redirectTo: '/welcome', pathMatch: 'full'},
-  {path: 'welcome', component: WelcomeComponent},
-  {path: 'login', component: LoginComponent},
-  {path: 'login/register', component: RegisterComponent},
-  {path: 'host', component: HostComponent},
-  {path: 'join', component: JoinComponent},
-  {path: 'gameview', component: GameviewComponent},
-  {path: '**', component: PageNotFoundComponent}
+  {path: '', 
+  redirectTo: '/welcome', 
+  pathMatch: 'full'},
+
+  {path: 'welcome', 
+  component: WelcomeComponent},
+
+  {path: 'login', 
+  component: LoginComponent},
+
+  {path: 'login/register', 
+  component: RegisterComponent},
+
+  {path: 'host', 
+  component: HostComponent, 
+  canActivate: [AuthGuard]},
+
+  {path: 'join', 
+  component: JoinComponent,
+  canActivate: [AuthGuard]},
+
+  {path: 'gameview', 
+  component: GameviewComponent,
+  canActivate: [AuthGuard]},
+
+  {path: '**', 
+  component: PageNotFoundComponent}
+
 ];
 
 @NgModule({

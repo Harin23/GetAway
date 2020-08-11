@@ -1,5 +1,6 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { AuthService } from './auth.service';
+
 
 @Component({
   selector: 'app-root',
@@ -9,6 +10,23 @@ import { RouterLink } from '@angular/router';
 })
 export class AppComponent {
   title = 'GetAway';
+
+  constructor(private _auth: AuthService) {}
+
+  fetchedUsername = "";
+
+  fetchUsername() {
+    this._auth.fetchUsername()
+      .subscribe(
+        res => {
+          localStorage.setItem('username', res['username']);
+          this.fetchedUsername = res['username'];
+        },
+        err => {
+          console.log(err);
+        }
+      )
+  }
 
 }
 

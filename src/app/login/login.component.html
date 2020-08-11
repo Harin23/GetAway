@@ -1,17 +1,25 @@
-<form class="container bg-info">
+<form class="container bg-dark text-white" [formGroup]="loginForm">
     <div class="form-group">
       <label for="userid">Username</label>
-      <input [(ngModel)]="loginData.userid" type="userid" #userid="ngModel" [class.is-invalid]="userid.invalid && userid.touched" class="form-control" name="userid" aria-describedby="username or email" placeholder="username or email" required>
+      <input formControlName="userid" type="userid" [class.is-invalid]="userid.invalid && userid.touched" class="form-control" name="userid" aria-describedby="username or email" placeholder="username or email" required>
       <small class="text-danger" [class.d-none]="userid.valid || userid.untouched">Please enter your username or email.</small>
     </div>
     <div class="form-group">
       <label for="password">Password</label>
-      <input [(ngModel)]="loginData.password" type="password" #password="ngModel" [class.is-invalid]="password.invalid && password.touched" class="form-control" name="password" required>
+      <input formControlName="password" type="password" [class.is-invalid]="password.invalid && password.touched" class="form-control" name="password" required>
       <small class="text-danger" [class.d-none]="password.valid || password.untouched">Password is required.</small>
     </div>
     <div class="form-group form-check">
       <input type="checkbox" class="form-check-input" id="exampleCheck1">
       <label class="form-check-label" for="exampleCheck1">Remember Me</label>
     </div>
-    <button (click)="loginUser()" type="submit" class="btn btn-primary">Login</button>
+    <div *ngIf="!loginClicked">
+      <button [disabled]="loginForm.invalid" (click)="loginUser()" type="submit" class="btn btn-primary">Login</button>
+    </div>
+    <div *ngIf="loginError && errorStatus0">
+      <small class="text-danger">Login Failed: Unable to connect.</small>
+    </div>
+    <div *ngIf="loginError && errorStatus401">
+      <small class="text-danger">{{error401Message}}.</small>
+    </div>
 </form>
