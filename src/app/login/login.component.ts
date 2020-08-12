@@ -18,7 +18,6 @@ export class LoginComponent implements OnInit {
     return this.loginForm.get('password')
   }
 
-  fetchedUsername = "";
   loginClicked = false;
   loginError = false;
   enableLogin = false;
@@ -60,4 +59,5 @@ export class LoginComponent implements OnInit {
         }
       )
   }
+
 }

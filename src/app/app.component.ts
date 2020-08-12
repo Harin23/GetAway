@@ -13,21 +13,6 @@ export class AppComponent {
 
   constructor(private _auth: AuthService) {}
 
-  fetchedUsername = "";
-
-  fetchUsername() {
-    this._auth.fetchUsername()
-      .subscribe(
-        res => {
-          localStorage.setItem('username', res['username']);
-          this.fetchedUsername = res['username'];
-        },
-        err => {
-          console.log(err);
-        }
-      )
-  }
-
 }
 
 

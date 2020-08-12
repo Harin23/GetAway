@@ -15,7 +15,7 @@ mongoose.connect(db_uri, error => {
     }
 });
 
-
+payloadCollected = "";
 
 //use this function to check token once the user is signed in
 function verifyToken(req, res, next){
@@ -26,11 +26,12 @@ function verifyToken(req, res, next){
     if (token === 'null'){
         res.status(401).send('Unauthorized request');
     }
-    let payload = jwt.verify(token, 'secretKey')
+    let payload = jwt.decode(token, 'secretKey')
     if (!payload){
         res.status(401).send('Unauthorized request');
     }
-    next(payload);
+    this.payloadCollected = payload['subject'];
+    next();
 }
 
 //this is the /login route:
@@ -85,13 +86,14 @@ router.post('/register', (req,res) => {
     });
 
 router.get('/username', verifyToken, (req,res) => {
-    userModel.findOne({ _id: payload}, (err, username) => {
+    userModel.findOne({ _id: payloadCollected}, (err, user) => {
         if (err){
             console.log(err)
-        } else if (username === null){
+        } else if (user === null){
             res.status(401).send('Username not found')
         } else {
-            res.status(200).send({username})
+            collectedUsername = user.username;
+            res.status(200).send({collectedUsername})
         }
     });
 });
