@@ -11,6 +11,7 @@ export class AuthService {
   private _returnUsernameUrl = "http://localhost:3000/login/username"
   constructor(private http: HttpClient) { }
 
+  loggedInBoolean = null;
 
   registerUser(user: any){
     return this.http.post(this._registerUrl, user);
@@ -20,8 +21,30 @@ export class AuthService {
     return this.http.post(this._loginUrl, user, {responseType: 'json'});
   }
 
+  userDataPresent(){
+    return !! (localStorage.getItem('token') && localStorage.getItem('username'));
+  }
+
   loggedIn(){
-    return !!localStorage.getItem('token');
+      if (this.userDataPresent()){
+        this.http.get(this._returnUsernameUrl)
+          .subscribe(
+            res =>{
+              if (localStorage.getItem('username') === res['collectedUsername']){
+                this.loggedInBoolean=true;
+              }else{
+                this.loggedInBoolean=false;
+              }
+            },
+            err => {
+              console.log(err);
+              this.loggedInBoolean=false;
+            }
+          )
+        return this.loggedInBoolean
+      }else{
+        return false;
+      } 
   }
 
   getToken(){
@@ -32,6 +55,10 @@ export class AuthService {
     return this.http.get(this._returnUsernameUrl)
   }
 
+  logOut(){
+    localStorage.clear();
+    return false;
+  }
 
 }
 //

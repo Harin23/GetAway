@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../auth.service';
+import { AppComponent } from '../app.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-host',
@@ -8,28 +9,13 @@ import { AuthService } from '../auth.service';
 })
 export class HostComponent implements OnInit {
 
-  constructor(private _auth: AuthService) { }
+  constructor(private _app: AppComponent,
+    private _router: Router) { }
 
   ngOnInit(): void {
-    this.fetchUsername()
+    
   }
 
-  fetchedUsername = "";
-  fetchUsername() {
-    if (this._auth.loggedIn) {
-        this._auth.fetchUsername()
-          .subscribe(
-            res => {
-              console.log(res)
-              localStorage.setItem('username', res['collectedUsername']);
-              this.fetchedUsername = res['collectedUsername'];
-              console.log(this.fetchedUsername)
-            },
-            err => {
-              console.log(err);
-            }
-          )
-    }
-  }
+
 
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../auth.service";
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AppComponent } from '../app.component';
 
 @Component({
   selector: 'app-login',
@@ -27,7 +28,8 @@ export class LoginComponent implements OnInit {
   
   constructor(private _auth: AuthService, 
     private _fb: FormBuilder,
-    private _router: Router) { }
+    private _router: Router,
+    private _app: AppComponent) { }
 
   ngOnInit(): void {
   }
@@ -44,7 +46,8 @@ export class LoginComponent implements OnInit {
       .subscribe( 
         res => {
           localStorage.setItem('token', res['token']);
-          this._router.navigate(['/host'])
+          this.fetchUsername();
+          
         },
         err => {
           this.loginError = true;
@@ -58,6 +61,22 @@ export class LoginComponent implements OnInit {
           }
         }
       )
+  }
+
+  fetchUsername() {
+    if (this._auth.loggedIn) {
+        this._auth.fetchUsername()
+          .subscribe(
+            res => {
+              localStorage.setItem('username', res['collectedUsername']);
+              this._app.displayUsername();
+              this._router.navigate(['/host'])
+            },
+            err => {
+              console.log(err);
+            }
+          )
+    }
   }
 
 }

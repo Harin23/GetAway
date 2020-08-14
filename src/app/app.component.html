@@ -1,28 +1,50 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" routerLink="/welcome">Get Away!</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-  
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-            <a class="nav-link" routerLink="/host">Host</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" routerLink="/join">Join</a>
-            </li>
-      </ul>
 
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" routerLink="/welcome">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" routerLink="/host">Host</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-white" routerLink="/join">Join</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="mx-auto order-0">
+        <a class="navbar-brand mx-auto text-info" routerLink="/welcome">Get Away!</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+
+    
+    <div class="navbar-collapse collapse w-100 order-3 dual-collapse2" *ngIf="!removeLoginRegister"> 
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/login">Login</a>
+          <a class="nav-link text-white" routerLink="/login">Login</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/login/register">Register</a>
+          <a class="nav-link text-white" routerLink="/login/register">Register</a>
         </li>
       </ul>
-
     </div>
-  </nav>
+
+    <div class="navbar-collapse collapse w-100 order-3 dual-collapse2" *ngIf="removeLoginRegister">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-white" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{usernameDisplay}}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+             <a class="dropdown-item" (click)="logout()">Logout</a>
+          </div>
+        </li>
+       </ul>
+    </div>
+
+</nav>
 <router-outlet></router-outlet>
