@@ -70,20 +70,73 @@ router.post('/', (req,res) => {
 });
 
 
+function test_if_user_exists(userinfo){
+
+};
+
 //this is the /login/resgister route:
 router.post('/register', (req,res) => {
     let userinfo = req.body
     let user = new userModel(userinfo)
-    user.save()
-        .then(registeredUser => {
-        let payload = { subject: registeredUser._id }
-        let token = jwt.sign(payload, 'secretKey')
-        res.status(200).send(token)
-        })
-        .catch(err => {
-        res.status(400).send(err);
-      });
+    
+    emailExists = null;
+    usernameExists = null;
+    usernameTest = false;
+    emailTest = false;
+
+    userModel.findOne({ email: userinfo.email }, (err, user) => {
+        if (err){
+            console.log(err)
+            emailTest = true;
+        } else if (user === null){
+            emailExists = false;
+            emailTest = true;
+        } else {
+            emailExists = true;
+            emailTest = true;
+        }
     });
+
+    userModel.findOne({ username: userinfo.username }, (err, user) => { 
+        if (err){
+            console.log(err)
+            usernameTest = true;
+        } else if (user === null){
+            usernameExists = false;
+            usernameTest = true;
+        } else {
+            usernameExists = true;
+            usernameTest = true;
+        }
+    });
+
+    cb1();
+    function cb1(){
+        if (emailTest ===false || usernameTest===false){
+            setTimeout(function(){cb1()}, 10);
+        }else{
+            if (usernameExists === false && emailExists === false){
+                user.save()
+                    .then(registeredUser => {
+                        let payload = { subject: registeredUser._id }
+                        let token = jwt.sign(payload, 'secretKey')
+                        res.status(200).send(token)
+                    })
+                    .catch(err => {
+                        res.status(400).send(err);
+                    });
+            } else if (emailExists === true && usernameExists === false){
+                res.status(400).send('This email address has already been used to register')
+            } else if (usernameExists === true && emailExists === false){
+                res.status(400).send('This username already exists')
+            } else if (usernameExists === true && emailExists === true){
+                res.status(400).send('This email address and username have both already been used to register')
+            };
+        };
+    };
+
+});
+        
 
 router.get('/username', verifyToken, (req,res) => {
     userModel.findOne({ _id: payloadCollected}, (err, user) => {
@@ -94,7 +147,7 @@ router.get('/username', verifyToken, (req,res) => {
         } else {
             collectedUsername = user.username;
             res.status(200).send({collectedUsername})
-        }
+        };
     });
 });
 
