@@ -69,11 +69,6 @@ router.post('/', (req,res) => {
     }
 });
 
-
-function test_if_user_exists(userinfo){
-
-};
-
 //this is the /login/resgister route:
 router.post('/register', (req,res) => {
     let userinfo = req.body

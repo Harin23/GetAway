@@ -27,7 +27,15 @@
       <input type="checkbox" class="form-check-input" id="exampleCheck1">
       <label class="form-check-label" for="exampleCheck1">Remember Me</label>
     </div>
-    <button [disabled]="registrationForm.invalid" (click)="registerUser()" type="submit" class="btn btn-primary">Register</button>
+    <div *ngIf="!registerClicked">
+      <button [disabled]="registrationForm.invalid" (click)="registerUser()" type="submit" class="btn btn-primary">Register</button>
+    </div>
+    <div *ngIf="registerError && errorStatus0">
+      <small class="text-danger">Login Failed: Unable to connect.</small>
+    </div>
+    <div *ngIf="registerError && errorStatus400">
+      <small class="text-danger">{{error400Message}}.</small>
+    </div>
 </form>
 
 

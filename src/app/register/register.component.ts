@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "../auth.service";
 import { FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AppComponent } from '../app.component';
 
 @Component({
   selector: 'app-register',
@@ -21,7 +23,18 @@ export class RegisterComponent implements OnInit {
     return this.registrationForm.get('password');
   };
 
-  constructor(private _auth: AuthService, private _fb: FormBuilder) { }
+  constructor(
+    private _auth: AuthService, 
+    private _fb: FormBuilder,
+    private _router: Router,
+    private _app: AppComponent) { }
+
+  registerClicked = false;
+  registerError = false;
+  enableRegister = false;
+  errorStatus0 = false;
+  errorStatus400 = false;
+  error400Message = "";
 
   ngOnInit(): void {
   }
@@ -33,10 +46,29 @@ export class RegisterComponent implements OnInit {
   });
 
   registerUser() {
+    this.registerClicked = true;
+    localStorage.setItem('username', this.registrationForm.value.username)
     this._auth.registerUser(this.registrationForm.value)
       .subscribe( 
-        res => console.log(res),
-        err => console.log(err)
+        res => {
+          this.registerError = false;
+          localStorage.setItem('token', res);
+          this._app.displayUsername();
+          this._router.navigate(['/host'])
+        },
+        err => {
+          console.log(err);
+          this.registerError = true;
+          this.registerClicked = false;
+          if (err.status === 0){
+            this.errorStatus0 = true;
+            this.errorStatus400 = false;
+          }else if (err.status === 400){
+            this.errorStatus400 = true;
+            this.errorStatus0 = false;
+            this.error400Message = err.error;
+          }
+        }
       )
   }
 }

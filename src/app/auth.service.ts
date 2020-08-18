@@ -14,7 +14,7 @@ export class AuthService {
   loggedInBoolean = null;
 
   registerUser(user: any){
-    return this.http.post(this._registerUrl, user);
+    return this.http.post(this._registerUrl, user, {responseType: 'text'});
   }
 
   loginUser(user: any){
