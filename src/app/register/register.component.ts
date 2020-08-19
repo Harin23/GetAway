@@ -52,7 +52,7 @@ export class RegisterComponent implements OnInit {
       .subscribe( 
         res => {
           this.registerError = false;
-          localStorage.setItem('token', res);
+          localStorage.setItem('token', res['token']);
           this._app.displayUsername();
           this._router.navigate(['/host'])
         },
