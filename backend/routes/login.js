@@ -147,5 +147,3 @@ router.get('/username', verifyToken, (req,res) => {
 });
 
 module.exports = router
-
-//res.addHeader("Access-Control-Allow-Headers", "Content-Type, authorization");
