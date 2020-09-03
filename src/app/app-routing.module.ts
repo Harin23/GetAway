@@ -25,17 +25,17 @@ const routes: Routes = [
 
   {path: 'host', 
   component: HostComponent, 
-  //canActivate: [AuthGuard]
+  canActivate: [AuthGuard]
   },
 
   {path: 'join', 
   component: JoinComponent,
-  //canActivate: [AuthGuard]
+  canActivate: [AuthGuard]
   },
 
   {path: 'gameview', 
   component: GameviewComponent,
-  //canActivate: [AuthGuard]
+  canActivate: [AuthGuard]
   },
 
   {path: '**', 

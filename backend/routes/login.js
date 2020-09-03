@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const router = express.Router();
 const mongoose = require('mongoose');
 const userModel = require('../models/user');
+const { userInfo } = require('os');
 
 
 //connect to db
@@ -29,9 +30,10 @@ function verifyToken(req, res, next){
     let payload = jwt.decode(token, 'secretKey')
     if (!payload){
         res.status(401).send('Unauthorized request');
+    }else{
+        this.payloadCollected = payload['subject'];
+        next();
     }
-    this.payloadCollected = payload['subject'];
-    next();
 }
 
 //this is the /login route:
@@ -46,9 +48,10 @@ router.post('/', (req,res) => {
             } else if (user.password != userinfo.password){
                 res.status(401).send('Invalid Password')
             } else {
+                let username = user.username;
                 let payload = { subject: user._id }
                 let token = jwt.sign(payload, 'secretkey')
-                res.status(200).send({token})
+                res.status(200).send({token, username})
             }
         });
     }else {
@@ -60,10 +63,10 @@ router.post('/', (req,res) => {
               } else if (user.password != userinfo.password){
                 res.status(401).send('Invalid Password')
             } else {
-                 //let username = user.username;
+                 let username = user.username;
                  let payload = { subject: user._id }
                  let token = jwt.sign(payload, 'secretkey')
-                 res.status(200).send({token})
+                 res.status(200).send({token, username})
              }
         });
     }
@@ -140,8 +143,28 @@ router.get('/username', verifyToken, (req,res) => {
         } else if (user === null){
             res.status(401).send('Username not found')
         } else {
-            collectedUsername = user.username;
+            let collectedUsername = user.username;
             res.status(200).send({collectedUsername})
+        };
+    });
+});
+
+router.post('/verify', verifyToken, (req,res) => {
+    let user = req.body;
+    localUsername = user.username;
+    userModel.findOne({ _id: payloadCollected}, (err, user) => {
+        if (err){
+            console.log(err)
+        } else if (user === null){
+            res.status(401).send('Username not found')
+        } else {
+            let collectedUsername = user.username;
+            if (localUsername === collectedUsername){
+                res.status(200).send(true)
+            }else{
+                res.status(401).send(false)
+            }
+            
         };
     });
 });

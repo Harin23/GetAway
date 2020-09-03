@@ -46,8 +46,9 @@ export class LoginComponent implements OnInit {
       .subscribe( 
         res => {
           localStorage.setItem('token', res['token']);
-          this.fetchUsername();
-          
+          localStorage.setItem('username', res['username']);
+          this._app.displayUsername();
+          this._router.navigate(['/host']) 
         },
         err => {
           this.loginError = true;
@@ -63,22 +64,6 @@ export class LoginComponent implements OnInit {
           }
         }
       )
-  }
-
-  fetchUsername() {
-    if (this._auth.loggedIn) {
-        this._auth.fetchUsername()
-          .subscribe(
-            res => {
-              localStorage.setItem('username', res['collectedUsername']);
-              this._app.displayUsername();
-              this._router.navigate(['/host'])
-            },
-            err => {
-              console.log(err);
-            }
-          )
-    }
   }
 
 }

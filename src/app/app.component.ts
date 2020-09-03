@@ -1,8 +1,5 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { AuthService } from './auth.service';
-import { Router } from '@angular/router';
-
-
 
 @Component({
   selector: 'app-root',
@@ -13,8 +10,9 @@ import { Router } from '@angular/router';
 export class AppComponent {
   title = 'GetAway';
 
-  constructor(private _auth: AuthService,
-  private _router: Router) {}
+  constructor(
+    private _auth: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.UserAlreadySignedIn();
@@ -25,9 +23,23 @@ export class AppComponent {
 
   UserAlreadySignedIn(){
     if (this._auth.userDataPresent()){
-      this.displayUsername();
+      this._auth.verifyCredentials()
+      .subscribe(
+        res =>{
+          if (res === true){
+            this.displayUsername();
+          }else{
+            this.logout();
+          }
+        },
+        err =>{
+          console.log(err);
+          this.logout();
+          alert("Error: You have been logged out.")
+        }
+      )
     }else{
-      return false;
+      this.logout();
     }
   }
 
@@ -38,7 +50,5 @@ export class AppComponent {
 
   logout(){
     this.removeLoginRegister = this._auth.logOut();
-    this._router.navigate(['/welcome'])
   }
 }
-
