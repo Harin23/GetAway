@@ -1,7 +1,38 @@
-.button{
-    background: gold;
-    font-size: 2em;
-    border-style: outset;
-    padding:1%;
-    margin-left: 5px;
+.send-message{
+    position: fixed;
+    bottom: 0px;
 }
+.username{
+    font-weight: bold;
+}
+@media (min-width: 1200px) { 
+    .messageInput{
+        width: 94vw;
+    }
+    .recieve-message{
+        height: 88vh;
+    }
+    .text{
+        font-weight: bold;
+        font-size: xx-large; 
+    }
+ }
+ @media (min-width: 768px) and (max-width: 991.98px) { 
+    .messageInput{
+        width: 70vw;
+    }
+    .recieve-message{
+        height: 90vh;
+    }
+ }
+ @media (min-width:361px) and (max-width: 575.98px) { 
+    .messageInput{
+        width: 70vw;
+    }
+    .recieve-message{
+        height: 87vh;
+    }
+    .text{
+        font-weight: bold; 
+    }
+ }

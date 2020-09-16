@@ -1,12 +1,12 @@
 <form class="container bg-dark text-white" [formGroup]="loginForm">
     <div class="form-group">
       <label for="userid">Username</label>
-      <input formControlName="userid" type="userid" [class.is-invalid]="userid.invalid && userid.touched" class="form-control" name="userid" aria-describedby="username or email" placeholder="username or email" required>
+      <input formControlName="userid" type="userid" [class.is-invalid]="userid.invalid && userid.touched" class="form-control" name="userid" aria-describedby="username or email" placeholder="username or email" required autocomplete="username">
       <small class="text-danger" [class.d-none]="userid.valid || userid.untouched">Please enter your username or email.</small>
     </div>
     <div class="form-group">
       <label for="password">Password</label>
-      <input formControlName="password" type="password" [class.is-invalid]="password.invalid && password.touched" class="form-control" name="password" required>
+      <input formControlName="password" type="password" [class.is-invalid]="password.invalid && password.touched" class="form-control" name="password" required autocomplete="current-password">
       <small class="text-danger" [class.d-none]="password.valid || password.untouched">Password is required.</small>
     </div>
     <div class="form-group form-check">

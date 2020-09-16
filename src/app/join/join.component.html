@@ -1,1 +1,14 @@
-
+<div class="container-fluid recieve-message">
+    <div class="container-fluid h-100 bg-secondary mt-2">
+        <div class="container-fluid overflow-auto text" id="displayMessages">
+            <span class="d-block rounded-pill p-1 bg-info text-dark">d-block</span>
+        </div>
+    </div>
+</div>
+<div class="send-message container-fluid bg-dark">
+    <div class="form-inline">
+        <label class="username text-white" for="message">{{username}}:</label>
+        <input class="messageInput bg-light" type="text">
+        <button (click)="sendMessage()" class="bg-primary">Send</button>
+    </div>  
+</div>

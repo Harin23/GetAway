@@ -8,7 +8,7 @@ const { userInfo } = require('os');
 
 //connect to db
 db_uri = "mongodb+srv://harin_getaway_game24:vWey6Oa4D9wOzDY7@getaway.svfza.mongodb.net/getaway-users?retryWrites=true&w=majority"
-mongoose.connect(db_uri, error => {
+mongoose.connect(db_uri, {useNewUrlParser: true, useUnifiedTopology: true }, error => {
     if (error){
         console.log(error)
     } else {

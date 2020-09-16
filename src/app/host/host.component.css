@@ -1,7 +1,28 @@
-.change-display{
-    height: calc(100vh - 12vh);
-}
 .alignChatBox{
     position: absolute;
     bottom: 0px;
 }
+.text-navy{
+    color: navy;
+}
+
+@media (min-width: 100px) and (max-width: 360px) {
+    .lobbies-container{
+        height: 50vh;
+    }
+ }
+@media (min-width:361px) and (max-width: 575.98px) { 
+    .lobbies-container{
+        height: 63vh;
+    }
+ }
+@media (min-width: 768px) and (max-width: 991.98px) { 
+    .lobbies-container{
+        height: 83vh;
+    }
+ }
+@media (min-width: 1200px) { 
+    .lobbies-container{
+        height: 80vh;
+    }
+ }

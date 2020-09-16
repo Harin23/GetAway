@@ -6,7 +6,7 @@
     </div>
     <div class="form-group">
         <label for="username">Username</label>
-        <input formControlName="username" type="username" [class.is-invalid]="username.invalid && username.touched" class="form-control" name="username" aria-describedby="username" placeholder="harin23" required>
+        <input formControlName="username" type="username" [class.is-invalid]="username.invalid && username.touched" class="form-control" name="username" aria-describedby="username" placeholder="harin23" required autocomplete="new-username">
         <div *ngIf="username.invalid && username.touched">
           <small *ngIf="username.errors?.pattern" class="text-danger">Allowed characters include numbers, lowercase letters and uppercase letters.<br></small>
           <small *ngIf="username.errors?.required" class="text-danger">Username is required.<br></small>
@@ -16,7 +16,7 @@
       </div>
     <div class="form-group">
       <label for="password">Password</label>
-      <input formControlName="password" type="password" [class.is-invalid]="password.invalid && password.touched" class="form-control" name="password" required>
+      <input formControlName="password" type="password" [class.is-invalid]="password.invalid && password.touched" class="form-control" name="password" required autocomplete="new-password">
       <div *ngIf="password.invalid && password.touched">
         <small *ngIf="password.errors?.maxlength" class="text-danger">The maxlength for a password is 15.</small>
         <small *ngIf="password.errors?.required" class="text-danger">password is required.</small>

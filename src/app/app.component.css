@@ -1,6 +1,12 @@
 body{
-    background-color: darkgrey;
+    background-color: royalblue;
 }
 .set-height{
     height: 7vh;
 }
+.navbar .navbar-nav .nav-item .nav-link:active,
+.navbar .navbar-nav .nav-item .nav-link:hover,
+.navbar .navbar-nav .nav-item .nav-link:focus{
+    background-color: #17a2b8;
+    color: navy;
+} 

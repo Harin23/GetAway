@@ -35,7 +35,6 @@ export class AppComponent {
         err =>{
           console.log(err);
           this.logout();
-          alert("Error: You have been logged out.")
         }
       )
     }else{

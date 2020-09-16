@@ -7,8 +7,8 @@ const port = 3000;
 io = require('socket.io')(server, options);
 
 app.use(cors());
-app.use(bodyParser(JSON));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //define routes:
 //const lobby = require('./routes/lobby');
@@ -24,9 +24,20 @@ app.use('/login', login);
 //app.use('/table', table(io));
 
 io.of('/lobby').on('connection', (socket) => {
-    
-    socket.emit('welcome', "welcome to the lobby");
+    socket.on("join_room", room =>{
+        socket.join(room);
+        console.log(`${room} joined`)
+    });
 
+    socket.on("sendMessage", ({room, message, username}) =>{
+        console.log(room, message, username)
+        //socket.to(room).broadcast.emit(`${username}:${message}`);
+        io.sockets.in(room).emit('message', {username: username, message: message});
+    });
+
+    /*socket.on("typing", ({room, username}) =>{
+        socket.to(room).emit(`${username} is typing...`);
+    }); */
 });
 
 
