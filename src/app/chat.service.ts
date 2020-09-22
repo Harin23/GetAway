@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { observable, Observable, Subscriber } from 'rxjs';
 import * as io from "socket.io-client";
 
 @Injectable({
@@ -17,12 +17,12 @@ export class ChatService {
     this.socket.emit("join_room", room);
   };
 
-  listen(event: string){
-    return new Observable((subscriber) =>{
-      this.socket.on(event, (data) =>{
-        subscriber.next(data);
-      });
-    });
+  listen(eventName: string) : Observable<any>{
+    return new Observable((Subscribe) =>{
+      this.socket.on(eventName, (data) =>{
+        Subscribe.next(data);
+      })
+    })
   };
 
   emitMessage(data){
@@ -30,3 +30,15 @@ export class ChatService {
   }
 
 }
+
+/*     
+
+return new Observable((subscriber) =>{
+      this.socket.on(event, (data) =>{
+        subscriber.next(data);
+      });
+    });
+    
+    
+    
+*/

@@ -16,9 +16,9 @@ export class HostComponent implements OnInit {
   existsError = false;
   DNEerror = false;
   constructor(
-    private _app: AppComponent,
-    private _router: Router,
-    private auth: AuthService,
+    private app: AppComponent,
+    private router: Router,
+    private _auth: AuthService,
     private chat: ChatService
   ) { }
 
@@ -42,10 +42,7 @@ export class HostComponent implements OnInit {
       (<HTMLInputElement>document.getElementById("newRoom")).value = "";
       document.getElementById("lobbyListParent").appendChild(liTag);
       this.chat.joinRoom(newLobbyName);
-    }else{
-      //bug
-    }
-    
+    };
   };
 
   lobbyListListen(){
@@ -83,14 +80,16 @@ export class HostComponent implements OnInit {
     let exists = this.LobbyExists(room);
     if(exists === true){
       this.chat.joinRoom(room);
+      this.app.enableRoomNav(room);
+      this.router.navigateByUrl(`/join/${room}`)
     }else{
       this.DNEerror = true;
       (<HTMLInputElement>document.getElementById('existingRoom')).value = "";
-    };
+    }
   };
 
   clearErrors(){
-    document.getElementById('existingRoom').addEventListener("input", (e) =>{
+    document.getElementById('existingRoom').addEventListener("click", (e) =>{
       this.DNEerror = false;
       this.existsError = false; 
     }, false);

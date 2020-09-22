@@ -27,12 +27,13 @@ io.of('/lobby').on('connection', (socket) => {
     socket.on("join_room", room =>{
         socket.join(room);
         console.log(`${room} joined`)
+        //console.log(socket.disconnected);
     });
 
     socket.on("sendMessage", ({room, message, username}) =>{
-        console.log(room, message, username)
+        //console.log(room, message, username)
         //socket.to(room).broadcast.emit(`${username}:${message}`);
-        io.sockets.in(room).emit('message', {username: username, message: message});
+        io.of('lobby').to(room).emit('message', `${username}:${message}`);
     });
 
     /*socket.on("typing", ({room, username}) =>{

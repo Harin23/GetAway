@@ -11,6 +11,9 @@ import { ChatService } from '../chat.service';
 export class JoinComponent implements OnInit {
 
   username: string;
+  clicked = false;
+  messageErr = false;
+  message: string;
   constructor(
     private auth: AuthService,
     private app: AppComponent,
@@ -19,7 +22,7 @@ export class JoinComponent implements OnInit {
 
   ngOnInit(): void {
     this.validate();
-    this.listenForMessages();
+    this.chat.listen("message").subscribe((data) => this.recievedMessage(data));
   }
 
   validate(){ 
@@ -44,15 +47,24 @@ export class JoinComponent implements OnInit {
   }
 
   sendMessage(){
-    this.chat.emitMessage({room: "1", message: "yo", username: this.username})
+    if(this.message === undefined){
+      this.messageErr = true;
+    }else if(this.message === null){
+      this.messageErr = true;
+    }else{
+      this.messageErr = false;
+      this.chat.emitMessage({room: "1", message: this.message, username: this.username});
+      this.message = null;
+    };
+  
   }
 
-  listenForMessages(){
-    this.chat.listen('message').subscribe(
-      (res: any) =>{
-        console.log("res recieved")
-        console.log(res)
-      }
-    )
+  recievedMessage(data: any): void {
+    let display = document.getElementById('displayMessages');
+    let span = document.createElement("span");
+    span.classList.add("d-block", "rounded-pill", "p-1", "my-1", "bg-info", "text-dark")
+    span.innerText = data;
+    console.log(span)
+    display.appendChild(span);
   }
 }

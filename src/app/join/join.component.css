@@ -7,7 +7,7 @@
 }
 @media (min-width: 1200px) { 
     .messageInput{
-        width: 94vw;
+        width: 90vw;
     }
     .recieve-message{
         height: 88vh;
@@ -27,7 +27,7 @@
  }
  @media (min-width:361px) and (max-width: 575.98px) { 
     .messageInput{
-        width: 70vw;
+        width: 65vw;
     }
     .recieve-message{
         height: 87vh;

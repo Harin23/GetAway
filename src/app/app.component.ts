@@ -1,4 +1,5 @@
 import { Component, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
 @Component({
@@ -11,7 +12,8 @@ export class AppComponent {
   title = 'GetAway';
 
   constructor(
-    private _auth: AuthService
+    private _auth: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -49,5 +51,12 @@ export class AppComponent {
 
   logout(){
     this.removeLoginRegister = this._auth.logOut();
+  }
+
+  enableRoomNav(joinedRoom){
+    let navButton = document.getElementById("room");
+    navButton.addEventListener("click", (e)=>{
+      this.router.navigateByUrl(`/join/${joinedRoom}`)
+    })
   }
 }

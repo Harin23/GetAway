@@ -28,7 +28,7 @@ const routes: Routes = [
   canActivate: [AuthGuard]
   },
 
-  {path: 'join', 
+  {path: 'join/:id', 
   component: JoinComponent,
   canActivate: [AuthGuard]
   },

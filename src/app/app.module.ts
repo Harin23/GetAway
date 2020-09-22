@@ -17,6 +17,7 @@ import { RegisterComponent } from './register/register.component';
 import { AuthService } from "./auth.service";
 import { AuthGuard } from './auth.guard';
 import { TokenInterceptorService } from './token-interceptor.service';
+import { ChatService } from './chat.service';
 
 
 @NgModule({
@@ -40,6 +41,7 @@ import { TokenInterceptorService } from './token-interceptor.service';
   providers: [
     AuthService,
     AuthGuard,
+    ChatService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptorService,
