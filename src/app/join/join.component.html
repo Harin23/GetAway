@@ -1,15 +1,14 @@
 <div class="container-fluid recieve-message">
     <div class="container-fluid h-100 bg-secondary mt-2 overflow-auto text" id="displayMessages">
-        <span class="d-block rounded-pill p-1 bg-info text-dark">d-block</span>
     </div>
 </div>
 <div class="send-message container-fluid bg-dark">
     <div class="form-inline">
         <label class="username text-white" for="message">{{username}}:</label>
         <input class="messageInput bg-light" type="text" [(ngModel)]="message">
-        <button (click)="sendMessage()" class="bg-primary">Send</button>
+        <button type="submit" (click)="sendMessage()" class="bg-primary">Send</button>
         <div *ngIf="messageErr">
             <small class="text-danger">Error: Cannot send empty message.</small>
-          </div>
+            </div>
     </div>  
 </div>

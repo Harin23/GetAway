@@ -3,6 +3,7 @@ import { AppComponent } from '../app.component';
 import { Router } from '@angular/router';
 import { ChatService } from '../chat.service';
 import { AuthService } from '../auth.service';
+import { LobbyService } from '../lobby.service';
 
 @Component({
   selector: 'app-host',
@@ -11,18 +12,20 @@ import { AuthService } from '../auth.service';
 })
 export class HostComponent implements OnInit {
 
-  username = "";
   userCredentials = null;
   existsError = false;
   DNEerror = false;
+  DNEerror2 = false;
   constructor(
     private app: AppComponent,
     private router: Router,
-    private _auth: AuthService,
-    private chat: ChatService
+    private auth: AuthService,
+    private chat: ChatService,
+    private lobby: LobbyService
   ) { }
 
   ngOnInit(){
+    this.refresh();
     this.lobbyListListen();
     this.clearErrors();
   };
@@ -41,7 +44,24 @@ export class HostComponent implements OnInit {
       liTag.innerText = newLobbyName;
       (<HTMLInputElement>document.getElementById("newRoom")).value = "";
       document.getElementById("lobbyListParent").appendChild(liTag);
-      this.chat.joinRoom(newLobbyName);
+      this.auth.fetchUsername().subscribe(
+        res =>{
+          let username = res['collectedUsername'];
+          this.lobby.newRoom(newLobbyName, username).subscribe(
+            res => {
+              //console.log(res)
+              this.chat.joinRoom(newLobbyName);
+              sessionStorage.setItem('room', newLobbyName)
+              this.router.navigateByUrl(`/join/${newLobbyName}`)
+              this.app.enableRoomNav(newLobbyName);
+            },
+            err => {console.log(err)}
+          )
+        },
+        err => {
+          console.log(err)
+        }
+      )
     };
   };
 
@@ -79,9 +99,27 @@ export class HostComponent implements OnInit {
     let room = (<HTMLInputElement>document.getElementById('existingRoom')).value;
     let exists = this.LobbyExists(room);
     if(exists === true){
-      this.chat.joinRoom(room);
-      this.app.enableRoomNav(room);
-      this.router.navigateByUrl(`/join/${room}`)
+      this.auth.fetchUsername().subscribe(
+        res =>{
+          let username = res['collectedUsername'];
+          this.lobby.joinRoom(room, username).subscribe(
+            res =>{
+              //console.log(res)
+              this.chat.joinRoom(room);
+              this.app.enableRoomNav(room);
+              this.chat.emitMessage({room: room, message:" has entered the room", username: username})
+              this.router.navigateByUrl(`/join/${room}`)
+            },
+            err =>{
+              console.log(err)
+              this.DNEerror2 = true;
+              (<HTMLInputElement>document.getElementById('existingRoom')).value = ""
+              this.refresh();
+              this.clearErrors();
+            }
+          )
+        }
+      )
     }else{
       this.DNEerror = true;
       (<HTMLInputElement>document.getElementById('existingRoom')).value = "";
@@ -92,23 +130,46 @@ export class HostComponent implements OnInit {
     document.getElementById('existingRoom').addEventListener("click", (e) =>{
       this.DNEerror = false;
       this.existsError = false; 
+      this.DNEerror2 = false;
     }, false);
     document.getElementById("newRoom").addEventListener("click", (e) =>{
       this.DNEerror = false;
       this.existsError = false; 
+      this.DNEerror2 = false;
     }, false);
   };
-};
+
+  refresh(){
+    document.getElementById("lobbyListParent").innerHTML="";
+    this.lobby.refreshList().subscribe(
+      res =>{
+        res['room'].forEach(element => {
+          var liTag = document.createElement("LI");
+          liTag.classList.add("list-group-item", "bg-transparent");
+          liTag.innerText = element.room;
+          document.getElementById("lobbyListParent").appendChild(liTag);
+        });
+      },
+      err => {console.log(err)}
+    )
+  }
+}
 
 /*    
-
-    this.chat.listen('welcome').subscribe(
-      res =>{
-        console.log(res)
-      },
-      err =>{
-        console.log(err);
-      }
-    )
+          this.auth.fetchUsername().subscribe(
+            res =>{
+              this.chat.joinRoom(newLobbyName, res['collectedUsername']).subscribe(
+                res =>{
+                  console.log(res)
+                },
+                err => {
+                  console.log(err)
+                }
+              )
+            },
+            err =>{
+              console.log(err)
+            }
+          )
     
 */

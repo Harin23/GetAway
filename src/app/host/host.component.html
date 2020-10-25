@@ -16,7 +16,10 @@
             <small class="text-danger">A room with that name already exists.</small>
         </div>
         <div *ngIf="DNEerror">
-            <small class="text-danger">The room you are trying to join does not Exist.</small>
+            <small class="text-danger">The room you are trying to join does not exist.</small>
+        </div>
+        <div *ngIf="DNEerror2">
+            <small class="text-danger">The room you are trying to join no longer exists.</small>
         </div>
     </form>
 </div>
@@ -24,10 +27,12 @@
 <div class="container-fluid lobbies-container overflow-auto">
     <div class="card bg-dark text-white text-center">
         <div class="card-header text-info">
+            <button class="btn btn-info float-left" type="submit" (click)="refresh()"><svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-arrow-repeat" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+              </svg></button>
             <h5>Select from the existing lobbies:</h5>
         </div>
-        <ul class="list-group list-group-flush bg-secondary" id="lobbyListParent">
-            <li class="list-group-item bg-transparent">1</li>
-        </ul>
+        <ul class="list-group list-group-flush bg-secondary" id="lobbyListParent"></ul>
     </div>
 </div>

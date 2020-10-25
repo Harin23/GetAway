@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
 import { AuthService } from '../auth.service';
 import { ChatService } from '../chat.service';
+import { LobbyService } from '../lobby.service';
 
 @Component({
   selector: 'app-join',
@@ -14,15 +17,26 @@ export class JoinComponent implements OnInit {
   clicked = false;
   messageErr = false;
   message: string;
+  subscription: Subscription;
   constructor(
     private auth: AuthService,
     private app: AppComponent,
-    private chat: ChatService
+    private chat: ChatService,
+    private lobby: LobbyService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
     this.validate();
-    this.chat.listen("message").subscribe((data) => this.recievedMessage(data));
+    this.subscription = this.chat.listen("message").subscribe((data) => this.recievedMessage(data));
+  }
+
+  listenForMessages(){
+    sessionStorage.setItem("listening", "true")
+  }
+
+  ngOnDestroy(): void{
+    this.subscription.unsubscribe();
   }
 
   validate(){ 
@@ -44,7 +58,7 @@ export class JoinComponent implements OnInit {
     }else{
       this.app.logout();
     }
-  }
+  };
 
   sendMessage(){
     if(this.message === undefined){
@@ -53,18 +67,41 @@ export class JoinComponent implements OnInit {
       this.messageErr = true;
     }else{
       this.messageErr = false;
-      this.chat.emitMessage({room: "1", message: this.message, username: this.username});
-      this.message = null;
+      this.message = " " + this.message
+      if (this.auth.userDataPresent()){
+        this.auth.verifyCredentials().subscribe(
+          res =>{
+            if (res === true){
+              this.lobby.findRoom(localStorage.getItem('username')).subscribe(
+                res=>{
+                  var data = res['data'];
+                  this.chat.emitMessage({room: data.room, message: this.message, username: this.username});
+                  this.message = null;
+                },
+                err=>{console.log(err)}
+              )
+            }else{
+              this.app.logout()
+            }
+          },
+          err =>{
+            console.log(err);
+            this.app.logout();
+          }
+        )
+      }else{
+        this.app.logout();
+      }
     };
-  
-  }
+  };
 
   recievedMessage(data: any): void {
+    //console.log("RM called")
     let display = document.getElementById('displayMessages');
     let span = document.createElement("span");
     span.classList.add("d-block", "rounded-pill", "p-1", "my-1", "bg-info", "text-dark")
     span.innerText = data;
-    console.log(span)
+    //console.log(span)
     display.appendChild(span);
-  }
+  };
 }

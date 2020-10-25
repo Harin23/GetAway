@@ -1,5 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { observable, Observable, Subscriber } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 import * as io from "socket.io-client";
 
 @Injectable({
@@ -7,11 +8,13 @@ import * as io from "socket.io-client";
 })
 export class ChatService {
   
-  lobbyURL = "http://localhost:3000/lobby";
-  socket: any;
-  constructor(  ) { 
+  private lobbyURL = "http://localhost:3000/lobby";
+  private socket: any;
+
+  constructor( 
+   ) { 
      this.socket = io(this.lobbyURL);
-  }
+  };
 
   joinRoom(room: string){
     this.socket.emit("join_room", room);
@@ -27,7 +30,7 @@ export class ChatService {
 
   emitMessage(data){
     this.socket.emit("sendMessage", data);
-  }
+  };
 
 }
 

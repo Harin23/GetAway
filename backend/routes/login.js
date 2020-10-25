@@ -10,7 +10,7 @@ mongoose.connect(db_uri, {useNewUrlParser: true, useUnifiedTopology: true }, err
     if (error){
         console.log(error)
     } else {
-        console.log('Connected to mongoDB')
+        console.log('Connected to mongoDB users collection')
     }
 });
 

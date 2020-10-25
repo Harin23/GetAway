@@ -11,17 +11,15 @@ app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //define routes:
-//const lobby = require('./routes/lobby');
 const login = require('./routes/login');
-//const table = require('./routes/table');
+const lobbydata = require('./routes/lobbydata')
 
 app.get('/', (req, res) => {
     //root
 });
 
 app.use('/login', login);
-//app.use('/lobby', lobby);
-//app.use('/table', table(io));
+app.use('/lobbydata', lobbydata);
 
 io.of('/lobby').on('connection', (socket) => {
     socket.on("join_room", room =>{
@@ -31,7 +29,7 @@ io.of('/lobby').on('connection', (socket) => {
     });
 
     socket.on("sendMessage", ({room, message, username}) =>{
-        //console.log(room, message, username)
+        console.log(room, message, username)
         //socket.to(room).broadcast.emit(`${username}:${message}`);
         io.of('lobby').to(room).emit('message', `${username}:${message}`);
     });

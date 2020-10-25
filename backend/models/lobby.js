@@ -1,6 +1,7 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const lobbySchema = new mongoose.Schema({
-    room: String
+    room: String,
+    users: [String]
 });
-module.exports = mongoose.model('lobby', lobbySchema, 'room');
+module.exports = mongoose.model('lobby', lobbySchema, 'lobby');
