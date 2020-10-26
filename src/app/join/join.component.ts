@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, AfterContentInit, AfterViewChecked, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
@@ -11,7 +11,7 @@ import { LobbyService } from '../lobby.service';
   templateUrl: './join.component.html',
   styleUrls: ['./join.component.css']
 })
-export class JoinComponent implements OnInit {
+export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
 
   username: string;
   clicked = false;
@@ -29,14 +29,26 @@ export class JoinComponent implements OnInit {
   ngOnInit(): void {
     this.validate();
     this.subscription = this.chat.listen("message").subscribe((data) => this.recievedMessage(data));
+  
   }
 
-  listenForMessages(){
-    sessionStorage.setItem("listening", "true")
+  ngAfterViewInit(): void{
+    const messagebar = document.getElementById("message");
+    //console.log(messagebar)
+    messagebar.addEventListener("keypress", (e) => {
+      if (e.key === "Enter"){
+        console.log("Enter key pressed")
+        this.sendMessage();
+      }
+    }, false)
   }
 
   ngOnDestroy(): void{
     this.subscription.unsubscribe();
+  }
+
+  listenForMessages(){
+    sessionStorage.setItem("listening", "true")
   }
 
   validate(){ 
@@ -61,6 +73,7 @@ export class JoinComponent implements OnInit {
   };
 
   sendMessage(){
+    
     if(this.message === undefined){
       this.messageErr = true;
     }else if(this.message === null){

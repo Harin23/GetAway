@@ -5,7 +5,7 @@
 <div class="send-message container-fluid bg-dark">
     <div class="form-inline">
         <label class="username text-white" for="message">{{username}}:</label>
-        <input class="messageInput bg-light" type="text" [(ngModel)]="message">
+        <input class="messageInput bg-light" id="message" type="text" [(ngModel)]="message">
         <button type="submit" (click)="sendMessage()" class="bg-primary">Send</button>
         <div *ngIf="messageErr">
             <small class="text-danger">Error: Cannot send empty message.</small>
