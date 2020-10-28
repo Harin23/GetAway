@@ -158,7 +158,7 @@ export class AppComponent {
         let username = res['collectedUsername'];
         this.lobby.leaveRoom(room, username).subscribe(
           res=>{
-            console.log(res)
+            //console.log(res)
             this.leftTheChat(room, username)
           },
           err=>{console.log(err)}

@@ -46,6 +46,7 @@ export class HostComponent implements OnInit {
       document.getElementById("lobbyListParent").appendChild(liTag);
       this.auth.fetchUsername().subscribe(
         res =>{
+          //sessionStorage.setItem('roomAlreadyJoined', 'false')
           let username = res['collectedUsername'];
           this.lobby.newRoom(newLobbyName, username).subscribe(
             res => {
@@ -101,6 +102,7 @@ export class HostComponent implements OnInit {
     if(exists === true){
       this.auth.fetchUsername().subscribe(
         res =>{
+          //sessionStorage.setItem('roomAlreadyJoined', 'false')
           let username = res['collectedUsername'];
           this.lobby.joinRoom(room, username).subscribe(
             res =>{

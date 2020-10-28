@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, AfterContentInit, AfterViewChecked, AfterViewInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
@@ -17,7 +17,7 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
   clicked = false;
   messageErr = false;
   message: string;
-  subscription: Subscription;
+  subscription1$: Subscription;
   constructor(
     private auth: AuthService,
     private app: AppComponent,
@@ -27,12 +27,15 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+    console.log("on init executed")
     this.validate();
-    this.subscription = this.chat.listen("message").subscribe((data) => this.recievedMessage(data));
-  
+    this.subscription1$ = this.chat.listen("message").subscribe((data) => this.recievedMessage(data));
+    //console.log(this.subscription1$);
+    //window.onbeforeunload = () => this.ngOnDestroy();
   }
 
   ngAfterViewInit(): void{
+    console.log("view init executed")
     const messagebar = document.getElementById("message");
     //console.log(messagebar)
     messagebar.addEventListener("keypress", (e) => {
@@ -44,8 +47,13 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void{
-    this.subscription.unsubscribe();
+    console.log("on destroy executed")
+    let room = sessionStorage.getItem('room')
+    this.chat.emitMessage({room: room, message: "Is no longer active and cannot see any of the messages.", username: this.username});
+    this.subscription1$.unsubscribe();
+   //console.log(this.subscription1$);
   }
+
 
   listenForMessages(){
     sessionStorage.setItem("listening", "true")
@@ -72,8 +80,7 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   };
 
-  sendMessage(){
-    
+  sendMessage(){ 
     if(this.message === undefined){
       this.messageErr = true;
     }else if(this.message === null){
