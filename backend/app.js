@@ -33,8 +33,6 @@ io.of('/lobby').on('connection', (socket) => {
         //console.log(room, message, username)
         io.of('lobby').to(room).emit('message', `${username}:${message}`);
         //console.log(socket.disconnected);
-        var clients = io.of('/lobby').clients(room);
-        console.log(clients)
     });
 
     socket.on("handoutCards", ({room}) => {

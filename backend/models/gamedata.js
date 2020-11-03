@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 const gamedataSchema = new mongoose.Schema({
-    lobbyName: String,
-    
+    room: String,
+    cardsShuffled: Boolean,
+    user1: [String],
+    user2: [String],
+    user3: [String],
+    user4: [String],
+    user5: [String]
 });
-module.exports = mongoose.model('lobby', lobbySchema, 'lobby');
+module.exports = mongoose.model('gamedata', gamedataSchema, 'gamedata');

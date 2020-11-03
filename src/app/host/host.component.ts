@@ -53,6 +53,7 @@ export class HostComponent implements OnInit {
               //console.log(res)
               this.chat.joinRoom(newLobbyName);
               sessionStorage.setItem('room', newLobbyName)
+              this.chat.emitMessage({room: newLobbyName, message:" has entered the room", username: username})
               this.router.navigateByUrl(`/join/${newLobbyName}`)
               this.app.enableRoomNav(newLobbyName);
             },
