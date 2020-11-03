@@ -13,6 +13,11 @@ export class GameviewComponent implements OnInit, AfterViewInit {
 
   username = localStorage.getItem('username')
   timer = 5;
+  
+  clubs = ["AC", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "JC", "QC", "KC"];
+  hearts = ["AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH"];
+  diamonds = ["AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"];
+  spades = ["AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS"];
 
   constructor() { }
 
@@ -27,8 +32,8 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     const gcCTX = gamecanvas.getContext("2d");
 
     //rectange of the table
-    const wr = this.canvasWidth*0.5;
-    const hr = this.canvasHeight*0.6;
+    const wr = this.canvasWidth*0.3;
+    const hr = this.canvasHeight*0.4;
     const xr = (this.canvasWidth*0.5) - (0.5*wr);
     const yr = (this.canvasHeight*0.5) - (0.5*hr);
     gcCTX.fillRect(xr,yr,wr,hr);
@@ -62,7 +67,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     gcCTX.font = "100px Arial bolder"
     gcCTX.fillStyle = "rgb(128, 0, 0)"
     gcCTX.fillText("GET", xText1, yText, maxWidthText)
-    const xText2 = dxCard + dwCard + 55;
+    const xText2 = dxCard + dwCard;
     gcCTX.fillText("AWAY!", xText2, yText, maxWidthText)
     /*
     //top texts
@@ -79,7 +84,6 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     gcCTX.fillStyle = "black"
     gcCTX.fillText(timerString, xc2, yTopTexts)
     */
-
-    
   }
+
 }
