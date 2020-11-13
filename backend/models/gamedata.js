@@ -5,7 +5,6 @@ const gamedataSchema = new mongoose.Schema({
     user1: [String],
     user2: [String],
     user3: [String],
-    user4: [String],
-    user5: [String]
+    user4: [String]
 });
 module.exports = mongoose.model('gamedata', gamedataSchema, 'gamedata');

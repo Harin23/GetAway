@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { stringify } from 'querystring';
+import { GameService } from '../game.service';
 
 @Component({
   selector: 'app-gameview',
@@ -19,12 +19,18 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   diamonds = ["AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"];
   spades = ["AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS"];
 
-  constructor() { }
+  constructor(
+    private game: GameService
+  ) { }
 
   ngOnInit() {
     //console.log(window.innerHeight - 74)
     //console.log(window.innerWidth*0.992)
-    
+    console.log("game init")
+    this.game.start(sessionStorage.getItem('room')).subscribe(
+      res=>{console.log(res)},
+      err=>{console.log(err)}
+    )
   }
 
   ngAfterViewInit(){

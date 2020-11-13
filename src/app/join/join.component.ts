@@ -27,7 +27,7 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-    console.log("on init executed")
+    //console.log("on init executed")
     this.validate();
     this.subscription1$ = this.chat.listen("message").subscribe((data) => this.recievedMessage(data));
     //console.log(this.subscription1$);
@@ -35,7 +35,7 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void{
-    console.log("view init executed")
+    //console.log("view init executed")
     const messagebar = document.getElementById("message");
     //console.log(messagebar)
     messagebar.addEventListener("keypress", (e) => {
@@ -47,7 +47,7 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void{
-    console.log("on destroy executed")
+    //console.log("on destroy executed")
     let room = sessionStorage.getItem('room')
     this.chat.emitMessage({room: room, message: "Is no longer active and cannot see any of the messages.", username: this.username});
     this.subscription1$.unsubscribe();
