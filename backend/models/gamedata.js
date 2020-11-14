@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const gamedataSchema = new mongoose.Schema({
     room: String,
     cardsShuffled: Boolean,
+    gameFinished: Boolean,
     user1: [String],
     user2: [String],
     user3: [String],

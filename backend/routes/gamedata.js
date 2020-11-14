@@ -58,6 +58,8 @@ router.post('/start', (req,res) => {
                         room.user2 = deck.slice(13,26)
                         room.user3 = deck.slice(26,39)
                         room.user4 = deck.slice(39,52)
+                        room.cardsShuffled = true;
+                        res.status(200).send("Cards Shuffled")
                     }
                 }
             }else{
