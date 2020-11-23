@@ -13,6 +13,6 @@ export class GameService {
 
   start(room: string){
     let roomInfo = { room: room }
-    return this.http.post(this.startURL, roomInfo, {responseType: 'json'});
+    return this.http.post(this.startURL, roomInfo, {responseType: 'text'});
   };
 }

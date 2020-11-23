@@ -21,7 +21,9 @@ router.post('/', (req,res) =>{
 //route:/lobby-data/create
 router.post('/create', (req, res) => {
     let roomInfo = req.body;
-    //console.log(roomInfo)
+    console.log(roomInfo)
+    roomInfo['totalUsers'] = 1;
+    console.log(roomInfo)
     let room = new lobbyModel(roomInfo);
     room.save();
     let gameInfo = {room: roomInfo.room, cardsShuffled: false}
@@ -39,9 +41,16 @@ router.post('/join', (req, res) => {
         }else if (room === null){
             res.status(400).send("Room does not exist")
         }else{
-            room.users.push(roomInfo.users);
-            room.save();
-            res.status(200).send({room});
+            numberOfUsers = room.totalUsers
+            console.log(numberOfUsers)
+            if(numberOfUsers <=4){
+                room.users.push(roomInfo.users);
+               room.totalUsers = numberOfUsers + 1 
+                room.save();
+                res.status(200).send({room});
+            }else{
+                res.status(400).send("Room full")
+            }
         } 
     })
 })
