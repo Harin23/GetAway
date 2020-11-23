@@ -1,2 +1,0 @@
-Needed changes:
-Hit enter to send message in chat.
