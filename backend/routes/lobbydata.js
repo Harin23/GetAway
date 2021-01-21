@@ -21,9 +21,9 @@ router.post('/', (req,res) =>{
 //route:/lobby-data/create
 router.post('/create', (req, res) => {
     let roomInfo = req.body;
-    console.log(roomInfo)
+    //console.log(roomInfo)
     roomInfo['totalUsers'] = 1;
-    console.log(roomInfo)
+   // console.log(roomInfo)
     let room = new lobbyModel(roomInfo);
     room.save();
     let gameInfo = {room: roomInfo.room, cardsShuffled: false}
@@ -42,10 +42,10 @@ router.post('/join', (req, res) => {
             res.status(400).send("Room does not exist")
         }else{
             numberOfUsers = room.totalUsers
-            console.log(numberOfUsers)
+            //console.log(numberOfUsers)
             if(numberOfUsers <=4){
                 room.users.push(roomInfo.users);
-               room.totalUsers = numberOfUsers + 1 
+                room.totalUsers = numberOfUsers + 1; 
                 room.save();
                 res.status(200).send({room});
             }else{
@@ -63,18 +63,32 @@ router.post('/leave', (req, res) => {
         }else if (room === null){
             res.status(400).send("Room does not exist")
         }else{
-            //console.log(room.users);
             var users = room.users;
             var user = roomInfo.users;
-            //need callback to wait for loop
-            for (var i=users.length-1; i>=0; i--) {
-                if (users[i] === user) {
-                users.splice(i, 1);
+            numberOfUsers = room.totalUsers;
+            if(users.length > 1 || numberOfUsers > 1){
+                for (var i=users.length-1; i>=0; i--) {
+                    if (users[i] === user) {
+                    users.splice(i, 1);
+                    }
                 }
-            } 
-            room.users = users;
-            room.save();
-            res.status(200).send({message: "Left"})
+                numberOfUsers -= 1;
+                room.totalUsers = numberOfUsers;
+                room.users = users;
+                room.save();
+                res.status(200).send({message: "Left"})
+            }else{
+                room.remove();
+                gamedataModel.findOne({ room: roomInfo.room }, (err, room) => {
+                    if (err){
+                        console.log(err)
+                    }else if (room === null){
+                        res.status(400).send("Room Deleted")
+                    }else{
+                        room.remove();
+                    }
+                })
+            }
         } 
     })
 })

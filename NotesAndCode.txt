@@ -1,0 +1,81 @@
+  clubs = ["AC", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "JC", "QC", "KC"];
+  hearts = ["AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH"];
+  diamonds = ["AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"];
+  spades = ["AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS"];
+
+
+-----above constructor----
+  screenHeight=0;
+  screenWidth=0;
+
+------inside ngoninit--------
+    this.screenHeight = window.innerHeight;
+    this.screenWidth = window.innerWidth;
+
+//0, dwUserCards, dwUserCards*2, dwUserCards*3, dwUserCards*4, dwUserCards*5, dwUserCards*6, dwUserCards*7, dwUserCards*8, dwUserCards*9, dwUserCards*10, dwUserCards*11, dwUserCards*12
+
+// let userCard1 = new Image();
+    // userCard1.src = "../../assets/PNG/2C.png";
+    // userCard1.onload = () =>{
+    //   gcCTX.drawImage(userCard1, dxUserCards[0], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard2 = new Image();
+    // userCard2.src = "../../assets/PNG/2C.png";
+    // userCard2.onload = () =>{
+    //   gcCTX.drawImage(userCard2, dxUserCards[1], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard3 = new Image();
+    // userCard3.src = "../../assets/PNG/2C.png";
+    // userCard3.onload = () =>{
+    //   gcCTX.drawImage(userCard3, dxUserCards[2], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard4 = new Image();
+    // userCard4.src = "../../assets/PNG/2C.png";
+    // userCard4.onload = () =>{
+    //   gcCTX.drawImage(userCard4, dxUserCards[3], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard5 = new Image();
+    // userCard5.src = "../../assets/PNG/2C.png";
+    // userCard5.onload = () =>{
+    //   gcCTX.drawImage(userCard5, dxUserCards[4], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard6 = new Image();
+    // userCard6.src = "../../assets/PNG/2C.png";
+    // userCard6.onload = () =>{
+    //   gcCTX.drawImage(userCard6, dxUserCards[5], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard7 = new Image();
+    // userCard7.src = "../../assets/PNG/2C.png";
+    // userCard7.onload = () =>{
+    //   gcCTX.drawImage(userCard7, dxUserCards[6], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard8 = new Image();
+    // userCard8.src = "../../assets/PNG/2C.png";
+    // userCard8.onload = () =>{
+    //   gcCTX.drawImage(userCard8, dxUserCards[7], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard9 = new Image();
+    // userCard9.src = "../../assets/PNG/2C.png";
+    // userCard9.onload = () =>{
+    //   gcCTX.drawImage(userCard9, dxUserCards[8], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard10 = new Image();
+    // userCard10.src = "../../assets/PNG/2C.png";
+    // userCard10.onload = () =>{
+    //   gcCTX.drawImage(userCard10, dxUserCards[9], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard11 = new Image();
+    // userCard11.src = "../../assets/PNG/2C.png";
+    // userCard11.onload = () =>{
+    //   gcCTX.drawImage(userCard11, dxUserCards[10], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard12 = new Image();
+    // userCard12.src = "../../assets/PNG/2C.png";
+    // userCard12.onload = () =>{
+    //   gcCTX.drawImage(userCard12, dxUserCards[11], dyUserCards, dwUserCards, dhUserCards)
+    // };
+    // let userCard13 = new Image();
+    // userCard13.src = "../../assets/PNG/2C.png";
+    // userCard13.onload = () =>{
+    //   gcCTX.drawImage(userCard13, dxUserCards[12], dyUserCards, dwUserCards, dhUserCards)
+    // };

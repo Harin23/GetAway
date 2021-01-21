@@ -21,7 +21,7 @@ deck =
 
 
 
-router.post('/start', (req,res) => {
+router.post('/shuffle', (req,res) => {
     roomName = req.body['room'];
     console.log(roomName)
     gamedataModel.findOne({ room: roomName}, (err, room) =>{
@@ -30,33 +30,31 @@ router.post('/start', (req,res) => {
         }else if (room === null){
             res.status(400).send("Room does not exist")
         }else{
-            console.log("shuffling started")
-            room.user1 = [];
-            room.user2 = [];
-            room.user3 = [];
-            room.user4 = [];
+            //console.log("shuffling started")
+            room.deck0 = [];
+            room.deck1 = [];
+            room.deck2 = [];
+            room.deck3 = [];
             room.save();
             let shuffled = room.cardsShuffled;
             if (shuffled === false){
                 //shuffle cards
                 let hold, newPos;
-                console.log(deck)
                 for (var i=deck.length-1; i>0; i--){
                     hold = deck[i];
                     newPos = Math.floor(Math.random() * (i+1))
                     deck[i] = deck[newPos]
                     deck[newPos] = hold;
-                    console.log(i)
                 }
                 cb();
                 function cb(){
                     if (i>0 ){
                         setTimeout(function(){cb()}, 5);
                     }else{
-                        room.user1 = deck.slice(0,13)
-                        room.user2 = deck.slice(13,26)
-                        room.user3 = deck.slice(26,39)
-                        room.user4 = deck.slice(39,52)
+                        room.deck0 = deck.slice(0,13)
+                        room.deck1 = deck.slice(13,26)
+                        room.deck2 = deck.slice(26,39)
+                        room.deck3 = deck.slice(39,52)
                         room.cardsShuffled = true;
                         res.status(200).send("Cards Shuffled")
                     }
@@ -66,10 +64,42 @@ router.post('/start', (req,res) => {
                 //by checking if a user has gotten rid of their cards
                 //if not then update the user with the cards they got left.
                 console.log("game already started")
+                res.status(200).send("cards already shuffled")
             }
         }
     })
 
+})
+
+router.post('/getcards', (req,res) => {
+    let room = req.body.room;
+    let user = req.body.name;
+    console.log(room, user)
+    lobbyModel.findOne({ room: room }, (err, room) => {
+        if (err){
+            console.log(err)
+        }else if (room === null){
+            res.status(400).send("Room does not exist")
+        }else{
+            let users = room.users;
+            let index = users.indexOf(user);
+            let assignedDeckName = "deck" + index;
+            //console.log(index, assignedDeckName)
+            gamedataModel.findOne({ room: roomName}, (err, room) =>{
+                if (err){
+                    console.log(err)
+                }else if (room === null){
+                    res.status(400).send("Room does not exist")
+                }else{
+                    //console.log(room["deck0"])
+                    let assignedDeck = room[assignedDeckName];
+                    //console.log(assignedDeck)
+                    res.status(200).send({assignedDeck});
+                }
+            })
+
+        }
+    })
 })
 
 module.exports = router

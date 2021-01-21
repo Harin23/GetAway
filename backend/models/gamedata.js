@@ -3,9 +3,9 @@ const gamedataSchema = new mongoose.Schema({
     room: String,
     cardsShuffled: Boolean,
     gameFinished: Boolean,
-    user1: [String],
-    user2: [String],
-    user3: [String],
-    user4: [String]
+    deck0: [String],
+    deck1: [String],
+    deck2: [String],
+    deck3: [String]
 });
 module.exports = mongoose.model('gamedata', gamedataSchema, 'gamedata');

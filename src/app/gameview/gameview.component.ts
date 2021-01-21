@@ -1,5 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { AppComponent } from '../app.component';
+import { AuthService } from '../auth.service';
 import { GameService } from '../game.service';
+import { LobbyService } from '../lobby.service';
 
 @Component({
   selector: 'app-gameview',
@@ -8,76 +11,121 @@ import { GameService } from '../game.service';
 })
 export class GameviewComponent implements OnInit, AfterViewInit {
 
-  canvasHeight = window.innerHeight - 74;
-  canvasWidth = window.innerWidth*0.992;
+  cardImages=[];
+  canvasHeight = 0;
+  canvasWidth = 0;
+  navbarHeight=0;
+  wr=0; hr=0; xr=0; yr=0; r=0; yc=0; xc1=0; xc2=0;
+  dyUserCards=0; dhUserCards=0; dwUserCards=0;
+  dwCard=0; dhCard=0; dxCard=0; dyCard=0;
+  dxCardsArray = []; dxEndCardsArray =[];
+  assignedDeck=[];
 
-  username = localStorage.getItem('username')
-  timer = 5;
-  
-  clubs = ["AC", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "JC", "QC", "KC"];
-  hearts = ["AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH"];
-  diamonds = ["AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"];
-  spades = ["AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS"];
 
   constructor(
-    private game: GameService
+    private game: GameService,
+    private auth: AuthService,
+    private lobby: LobbyService,
+    private app: AppComponent
   ) { }
 
+  setVariables(){
+    this.navbarHeight = this.app.getNavbar().height;
+    this.canvasHeight = window.innerHeight - this.navbarHeight;
+    this.canvasWidth = window.innerWidth;
+    this.wr = this.canvasWidth*0.3;
+    this.hr = this.canvasHeight*0.4;
+    this.xr = (this.canvasWidth*0.5) - (0.5*this.wr);
+    this.yr = (this.canvasHeight*0.5) - (0.5*this.hr);
+  
+    this.r = this.hr*0.5;
+    this.yc = this.yr + (0.5*this.hr);
+    this.xc1 = this.xr;
+    this.xc2 = this.xr + this.wr;
+
+    this.dyUserCards = this.yr + (this.hr * 1.1);
+    this.dhUserCards = this.canvasHeight - this.dyUserCards;
+    this.dwUserCards = this.canvasWidth / 13;
+
+    this.dwCard = this.r;
+    this.dhCard = this.hr*0.7;
+    this.dxCard = ((this.xc1+this.xc2)*0.5)-(0.5*this.dwCard);
+    this.dyCard = this.yr + (this.hr - this.dhCard)*0.5
+  
+  }
+
   ngOnInit() {
-    //console.log(window.innerHeight - 74)
-    //console.log(window.innerWidth*0.992)
-    console.log("game init")
-    this.game.start(sessionStorage.getItem('room')).subscribe(
-      res=>{console.log(res)},
-      err=>{console.log(err)}
-    )
+    this.setVariables()
   }
 
   ngAfterViewInit(){
-    const gamecanvas = document.getElementById('gamecanvas') as  HTMLCanvasElement;
-    const gcCTX = gamecanvas.getContext("2d");
+    let gamecanvas = document.getElementById('gamecanvas') as  HTMLCanvasElement;
+    let gcCTX = gamecanvas.getContext("2d");
 
     //rectange of the table
-    const wr = this.canvasWidth*0.3;
-    const hr = this.canvasHeight*0.4;
-    const xr = (this.canvasWidth*0.5) - (0.5*wr);
-    const yr = (this.canvasHeight*0.5) - (0.5*hr);
-    gcCTX.fillRect(xr,yr,wr,hr);
+
+    gcCTX.fillRect(this.xr,this.yr,this.wr,this.hr);
 
     //semi-circles of table
-    const r = hr*0.5;
-    const yc = yr + (0.5*hr);
-    const xc1 = xr;
-    gcCTX.arc(xc1,yc,r,0.5*Math.PI,1.5*Math.PI);
+    gcCTX.arc(this.xc1,this.yc,this.r,0.5*Math.PI,1.5*Math.PI);
     gcCTX.fillStyle = "RGB(53,101,77)"
     gcCTX.fill();
-    const xc2 = xr + wr;
-    gcCTX.arc(xc2,yc,r,1.5*Math.PI,0.5*Math.PI);
+    
+    gcCTX.arc(this.xc2,this.yc,this.r,1.5*Math.PI,0.5*Math.PI);
     gcCTX.fill();
 
-    //card thrown on the table
-    const dwCard = r;
-    const dhCard = hr*0.7;
-    const dxCard = ((xc1+xc2)*0.5)-(0.5*dwCard);
-    const dyCard = yr + (hr - dhCard)*0.5
-    let cardImage = new Image()
-    cardImage.src = "../../assets/PNG/2C.png"
-    //console.log(cardImage)
-    cardImage.onload = ()=>{
-      gcCTX.drawImage(cardImage, dxCard, dyCard, dwCard, dhCard)
-    }
+    //outline for card thrown on the table:
+    const dwCardOutline = this.dwCard+10;
+    const dhCardOutline = this.dhCard+10;
+    const dxCardOutline = ((this.xc1+this.xc2)*0.5)-(0.5*dwCardOutline);
+    const dyCardOutline = this.yr + (this.hr - dhCardOutline)*0.5;
+    gcCTX.fillStyle = "rgb(128, 0, 0)"
+    gcCTX.fillRect(dxCardOutline,dyCardOutline,dwCardOutline,dhCardOutline);
+
     //getaway text
-    const maxWidthText = dxCard - xc1;
-    const yText = yc*1.05;
-    const xText1 = xc1;
+    const maxWidthText = dxCardOutline - this.xc1;
+    const yText = this.yc*1.05;
+    const xText1 = this.xc1;
     gcCTX.font = "100px Arial bolder"
     gcCTX.fillStyle = "rgb(128, 0, 0)"
     gcCTX.fillText("GET", xText1, yText, maxWidthText)
-    const xText2 = dxCard + dwCard;
+    const xText2 = dxCardOutline + dwCardOutline;
     gcCTX.fillText("AWAY!", xText2, yText, maxWidthText)
+    //the users cards:
+    this.auth.fetchUsername().subscribe(
+      res =>{
+        let username = res['collectedUsername'];
+        this.lobby.findRoom(username).subscribe(
+          res=>{
+            let room = res['data'].room;
+            this.game.getCards(room, username).subscribe(
+              res=>{
+                console.log(res)
+                this.assignedDeck = res["assignedDeck"];
+                for(let i=0; i<this.assignedDeck.length; i++){
+                    this.cardImages.push(this.game.cardImages(this.assignedDeck[i]));
+                    let dx = this.dwUserCards * i;
+                    this.dxCardsArray.push(dx);
+                    this.dxEndCardsArray.push(dx + this.dwUserCards);
+                    this.cardImages[i].onload = () =>{
+                      gcCTX.drawImage(this.cardImages[i], dx, this.dyUserCards, this.dwUserCards, this.dhUserCards)
+                    };
+                }
+              },
+              err=>{console.log(err)}
+            )
+          },
+          err=>{console.log(err)}
+        )
+      })
+
+      gamecanvas.addEventListener("click", (e)=>{
+        this.throwCard(e)
+      })
+
     /*
     //top texts
-    const yTopTexts = yr - 40;
+    const yTopTexts = this.yr - 40;
     //Current turn
     var turnText = "CURRENT TURN: " + this.username
     gcCTX.font = "50px Arial bolder"
@@ -88,8 +136,44 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     //console.log(timerString)
     gcCTX.font = "50px Arial bolder"
     gcCTX.fillStyle = "black"
-    gcCTX.fillText(timerString, xc2, yTopTexts)
+    gcCTX.fillText(timerString, this.xc2, yTopTexts)
     */
   }
 
+  findClickedCard(clicked: { x: any; y: any; }){
+    if(clicked.y<this.dyUserCards || clicked.y>this.dyUserCards+this.dhUserCards){
+      return {selectionMade: false, cardSelected: null}
+    }
+    //let result=[];
+    let result = 0;
+    //console.log(this.dxCardsArray, this.dxEndCardsArray)
+    for(let i=0; i<this.dxCardsArray.length; i++){
+      if(clicked.x >= this.dxCardsArray[i] && clicked.x <= this.dxEndCardsArray[i]){
+        //result[0] = this.dxCardsArray[i];
+        //result[1] = this.dxEndCardsArray[i];
+        result = i;
+        break;
+      }
+    }
+    //console.log(result)
+    return {selectionMade: true, cardSelected: this.assignedDeck[result]}
+
+  }
+
+  throwCard(e){
+    //card thrown on the table
+    let gamecanvas = document.getElementById('gamecanvas') as  HTMLCanvasElement;
+    let gcCTX = gamecanvas.getContext("2d");
+
+    let clicked = {x:e.x, y:e.y}
+    let selection = this.findClickedCard(clicked);
+    // console.log(selection)
+    if(selection.selectionMade === true){
+      let cardImage = new Image()
+      cardImage.src = "../../assets/PNG/" + selection.cardSelected + ".png";
+      cardImage.onload = ()=>{
+        gcCTX.drawImage(cardImage, this.dxCard, this.dyCard, this.dwCard, this.dhCard)
+      }
+    }
+  }
 }

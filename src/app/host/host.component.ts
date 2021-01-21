@@ -1,9 +1,10 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AppComponent } from '../app.component';
 import { Router } from '@angular/router';
 import { ChatService } from '../chat.service';
 import { AuthService } from '../auth.service';
 import { LobbyService } from '../lobby.service';
+import { GameService } from '../game.service';
 
 @Component({
   selector: 'app-host',
@@ -21,7 +22,8 @@ export class HostComponent implements OnInit {
     private router: Router,
     private auth: AuthService,
     private chat: ChatService,
-    private lobby: LobbyService
+    private lobby: LobbyService,
+    private game: GameService
   ) { }
 
   ngOnInit(){
@@ -30,32 +32,40 @@ export class HostComponent implements OnInit {
     this.clearErrors();
   };
 
+  joinedRoom(room: string, username: string){
+    this.chat.joinRoom(room);
+    sessionStorage.setItem('room', room)
+    this.app.enableRoomNav(room);
+    this.chat.emitMessage({room: room, message:" has entered the room", username: username})
+    this.router.navigateByUrl(`/join/${room}`)
+  }
+
+  shuffleCards(room: string){
+    this.game.shuffle(room).subscribe(
+      res=>{console.log(res)},
+      err=>{console.log(err)}
+    )
+  }
+
   createNewLobby(){
-    var newLobbyName = (<HTMLInputElement>document.getElementById("newRoom")).value;
-    let exists = this.LobbyExists(newLobbyName);
-    //console.log(exists)
+    var newRoomName = (<HTMLInputElement>document.getElementById("newRoom")).value;
+    let exists = this.LobbyExists(newRoomName);
     if (exists === true){
       this.existsError = true;
-      //console.log(this.existsError)
       (<HTMLInputElement>document.getElementById("newRoom")).value = "";
     }else if(exists === false){
       var liTag = document.createElement("LI");
       liTag.classList.add("list-group-item", "bg-transparent");
-      liTag.innerText = newLobbyName;
+      liTag.innerText = newRoomName;
       (<HTMLInputElement>document.getElementById("newRoom")).value = "";
       document.getElementById("lobbyListParent").appendChild(liTag);
       this.auth.fetchUsername().subscribe(
         res =>{
-          //sessionStorage.setItem('roomAlreadyJoined', 'false')
           let username = res['collectedUsername'];
-          this.lobby.newRoom(newLobbyName, username).subscribe(
+          this.lobby.newRoom(newRoomName, username).subscribe(
             res => {
-              //console.log(res)
-              this.chat.joinRoom(newLobbyName);
-              sessionStorage.setItem('room', newLobbyName)
-              this.chat.emitMessage({room: newLobbyName, message:" has entered the room", username: username})
-              this.router.navigateByUrl(`/join/${newLobbyName}`)
-              this.app.enableRoomNav(newLobbyName);
+              this.shuffleCards(newRoomName)
+              this.joinedRoom(newRoomName, username);
             },
             err => {console.log(err)}
           )
@@ -68,7 +78,6 @@ export class HostComponent implements OnInit {
   };
 
   lobbyListListen(){
-      //buttons = document.querySelectorAll("button.lobbyList");
       const lobbyList = document.getElementById("lobbyListParent");
       lobbyList.addEventListener("click", (e)=>{
         this.DNEerror = false;
@@ -79,18 +88,11 @@ export class HostComponent implements OnInit {
     }; 
 
   LobbyExists(name){
-    //console.log(name)
     let exists = false;
     const lobbyList = document.getElementById("lobbyListParent");
-    //console.log(lobbyList.children.item(0).textContent)
-    //console.log(lobbyList.childElementCount)
     for(let i=0; i<lobbyList.childElementCount; i++){
-      //console.log('                    ')
       let existingName = lobbyList.children.item(i).textContent;
-      //console.log(name, typeof(name))
-      //console.log(existingName, typeof(existingName))
       if (existingName === name){
-        //console.log("exists")
         exists = true;
       }
     }
@@ -103,15 +105,10 @@ export class HostComponent implements OnInit {
     if(exists === true){
       this.auth.fetchUsername().subscribe(
         res =>{
-          //sessionStorage.setItem('roomAlreadyJoined', 'false')
           let username = res['collectedUsername'];
           this.lobby.joinRoom(room, username).subscribe(
             res =>{
-              //console.log(res)
-              this.chat.joinRoom(room);
-              this.app.enableRoomNav(room);
-              this.chat.emitMessage({room: room, message:" has entered the room", username: username})
-              this.router.navigateByUrl(`/join/${room}`)
+              this.joinedRoom(room, username)
             },
             err =>{
               console.log(err)
@@ -157,22 +154,3 @@ export class HostComponent implements OnInit {
     )
   }
 }
-
-/*    
-          this.auth.fetchUsername().subscribe(
-            res =>{
-              this.chat.joinRoom(newLobbyName, res['collectedUsername']).subscribe(
-                res =>{
-                  console.log(res)
-                },
-                err => {
-                  console.log(err)
-                }
-              )
-            },
-            err =>{
-              console.log(err)
-            }
-          )
-    
-*/

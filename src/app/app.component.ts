@@ -1,6 +1,5 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ChatService } from './chat.service';
 import { LobbyService } from './lobby.service';
@@ -18,7 +17,7 @@ export class AppComponent {
     private _auth: AuthService,
     private router: Router,
     private lobby: LobbyService,
-    private chat: ChatService
+    private chat: ChatService, 
   ) {}
 
   ngOnInit(): void {
@@ -172,4 +171,9 @@ export class AppComponent {
   leftTheChat(room: string, username: string){
     this.chat.emitMessage({room: room, message: " has left the room", username: username})
   };
+
+  getNavbar(){
+    var element = document.getElementById("navbarElement");
+    return element.getBoundingClientRect();
+  }
 }

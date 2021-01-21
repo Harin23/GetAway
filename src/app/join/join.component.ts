@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
@@ -22,8 +22,7 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
     private auth: AuthService,
     private app: AppComponent,
     private chat: ChatService,
-    private lobby: LobbyService,
-    private router: Router
+    private lobby: LobbyService
   ) { }
 
   ngOnInit(): void {
