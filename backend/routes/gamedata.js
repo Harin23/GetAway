@@ -23,7 +23,6 @@ deck =
 
 router.post('/shuffle', (req,res) => {
     roomName = req.body['room'];
-    console.log(roomName)
     gamedataModel.findOne({ room: roomName}, (err, room) =>{
         if (err){
             console.log(err)

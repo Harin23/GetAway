@@ -35,8 +35,8 @@ io.of('/lobby').on('connection', (socket) => {
         //console.log(socket.disconnected);
     });
 
-    socket.on("handoutCards", ({room}) => {
-
+    socket.on("cardOnTable", ({room, username, card}) => {
+        io.of('lobby').to(room).emit("tableCard", card);
     }); 
 
     /*socket.on("typing", ({room, username}) =>{

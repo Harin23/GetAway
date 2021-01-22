@@ -1,5 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import * as io from "socket.io-client";
+import { ChatService } from './chat.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,11 +13,19 @@ export class GameService {
   private getCardsURL = "http://localhost:3000/gamedata/getcards";
   private throwCardsURL = "http://localhost:3000/gamedata/throwcard";
   private onTableURL = "http://localhost:3000/gamedata/ontable";
-  constructor(
-    private http: HttpClient
-  ) {}
 
+  private socket: any;
+
+  constructor(
+    private http: HttpClient,
+    private chat: ChatService
+  ) {
+    this.socket = this.chat.getSocket();
+  }
+
+  //db methods
   shuffle(room: string){
+    console.log(room)
     let roomInfo = { room: room }
     return this.http.post(this.shuffleURL, roomInfo, {responseType: 'text'});
   };
@@ -38,4 +49,21 @@ export class GameService {
   getOnTable(data: object){
     return this.http.post(this.onTableURL, data, {responseType: 'json'})
   }
+
+  //socket-io
+
+
+  listen(eventName: string) : Observable<any>{
+    return new Observable((Subscribe) =>{
+      this.socket.on(eventName, (data) =>{
+        Subscribe.next(data);
+      })
+    })
+  };
+
+  onTable(data: any){
+    console.log(this.socket, data)
+    this.socket.emit("cardOnTable", data);
+  };
+
 }

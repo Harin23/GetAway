@@ -1,6 +1,5 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, Subscriber } from 'rxjs';
+import { Observable } from 'rxjs';
 import * as io from "socket.io-client";
 
 @Injectable({
@@ -31,6 +30,15 @@ export class ChatService {
   emitMessage(data){
     this.socket.emit("sendMessage", data);
   };
+
+  getSocket(){
+    return this.socket;
+  }
+
+  // onTable(data){
+  //   console.log(this.socket, data)
+  //   this.socket.emit("cardOnTable", data);
+  // };
 
 }
 

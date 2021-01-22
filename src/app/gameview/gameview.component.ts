@@ -1,5 +1,5 @@
-import { ValueConverter } from '@angular/compiler/src/render3/view/template';
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
 import { AuthService } from '../auth.service';
 import { GameService } from '../game.service';
@@ -18,6 +18,8 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   wr=0; hr=0; xr=0; yr=0; r=0; yc=0; xc1=0; xc2=0;
   dyUserCards=0; dhUserCards=0; dwUserCards=0; dxUserCards = {};
   dwCard=0; dhCard=0; dxCard=0; dyCard=0;
+
+  subscription1$: Subscription;
 
   constructor(
     private game: GameService,
@@ -64,6 +66,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.setVariables()
+    this.subscription1$ = this.game.listen("tableCard").subscribe((data) => this.placeCardOnTable(data));
   }
 
   removeCardFromUsersDeck(x: Array<number>){
@@ -199,8 +202,9 @@ export class GameviewComponent implements OnInit, AfterViewInit {
               this.game.throwCard(data).subscribe(
                 res=>{
                   if(res["thrown"] === true){
-                    this.placeCardOnTable(selection.cardSelected);
+                    // this.placeCardOnTable(selection.cardSelected);
                     this.removeCardFromUsersDeck(selection.location);
+                    this.game.onTable(data)
                   }else{
                     console.log("failed to throw card")
                   }
@@ -212,5 +216,9 @@ export class GameviewComponent implements OnInit, AfterViewInit {
           )
         })
     }
+  }
+
+  ngOnDestroy(): void{
+    this.subscription1$.unsubscribe();
   }
 }
