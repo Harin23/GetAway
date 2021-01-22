@@ -72,27 +72,27 @@ router.post('/shuffle', (req,res) => {
 })
 
 router.post('/getcards', (req,res) => {
-    let room = req.body.room;
-    let user = req.body.name;
-    console.log(room, user)
-    lobbyModel.findOne({ room: room }, (err, room) => {
+    let roomReq = req.body.room;
+    let userReq = req.body.name;
+    //console.log(roomReq, userReq)
+    lobbyModel.findOne({ room: roomReq }, (err, lobbyRoom) => {
         if (err){
             console.log(err)
-        }else if (room === null){
+        }else if (lobbyRoom === null){
             res.status(400).send("Room does not exist")
         }else{
-            let users = room.users;
-            let index = users.indexOf(user);
+            let users = lobbyRoom.users;
+            let index = users.indexOf(userReq);
             let assignedDeckName = "deck" + index;
             //console.log(index, assignedDeckName)
-            gamedataModel.findOne({ room: roomName}, (err, room) =>{
+            gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
                 if (err){
                     console.log(err)
-                }else if (room === null){
+                }else if (gameRoom === null){
                     res.status(400).send("Room does not exist")
                 }else{
                     //console.log(room["deck0"])
-                    let assignedDeck = room[assignedDeckName];
+                    let assignedDeck = gameRoom[assignedDeckName];
                     //console.log(assignedDeck)
                     res.status(200).send({assignedDeck});
                 }
@@ -101,5 +101,57 @@ router.post('/getcards', (req,res) => {
         }
     })
 })
+
+router.post('/throwcard', (req,res) => {
+    let roomReq = req.body.room;
+    let userReq = req.body.name;
+    let cardThrown = req.body.card;
+    //console.log(roomReq, userReq)
+    lobbyModel.findOne({ room: roomReq }, (err, lobbyRoom) => {
+        if (err){
+            console.log(err)
+        }else if (lobbyRoom === null){
+            res.status(400).send("Room does not exist")
+        }else{
+            let users = lobbyRoom.users;
+            let index = users.indexOf(userReq);
+            let assignedDeckName = "deck" + index;
+            //console.log(index, assignedDeckName)
+            gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
+                if (err){
+                    console.log(err)
+                }else if (gameRoom === null){
+                    res.status(400).send("Room does not exist")
+                }else{
+                    let cards = gameRoom[assignedDeckName];
+                    let index = cards.indexOf(cardThrown);
+                    if(index !== -1){
+                        let temp = cards.splice(0, index);
+                        temp.push(...cards.splice(1));
+                        gameRoom[assignedDeckName] = temp;
+                        gameRoom["cardOnTable"] = cardThrown;
+                        res.status(200).send({thrown: true});
+                       gameRoom.save();
+                    }else{res.status(200).send({thrown: false})};
+                };
+            });
+
+        };
+    });
+});
+
+router.post('/ontable', (req,res) => {
+    let roomReq = req.body.room;
+    gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
+        if (err){
+            console.log(err)
+        }else if (gameRoom === null){
+            res.status(400).send("Room does not exist")
+        }else{
+            let cardOnTable = gameRoom["cardOnTable"];
+            res.status(200).send({cardOnTable});
+        };
+    });
+});
 
 module.exports = router

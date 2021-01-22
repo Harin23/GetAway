@@ -8,6 +8,8 @@ export class GameService {
 
   private shuffleURL = "http://localhost:3000/gamedata/shuffle";
   private getCardsURL = "http://localhost:3000/gamedata/getcards";
+  private throwCardsURL = "http://localhost:3000/gamedata/throwcard";
+  private onTableURL = "http://localhost:3000/gamedata/ontable";
   constructor(
     private http: HttpClient
   ) {}
@@ -22,10 +24,18 @@ export class GameService {
     return this.http.post(this.getCardsURL, info, {responseType: 'json'})
   }
 
-  cardImages(card: string){
+  getCardImage(card: string){
     var cardImage = new Image();
     let src = "../../assets/PNG/" + card + ".png";
     cardImage.src = src
     return cardImage;
+  }
+
+  throwCard(data: object){
+    return this.http.post(this.throwCardsURL, data, {responseType: 'json'})
+  }
+
+  getOnTable(data: object){
+    return this.http.post(this.onTableURL, data, {responseType: 'json'})
   }
 }

@@ -1,3 +1,4 @@
+import { ValueConverter } from '@angular/compiler/src/render3/view/template';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { AppComponent } from '../app.component';
 import { AuthService } from '../auth.service';
@@ -11,16 +12,12 @@ import { LobbyService } from '../lobby.service';
 })
 export class GameviewComponent implements OnInit, AfterViewInit {
 
-  cardImages=[];
   canvasHeight = 0;
   canvasWidth = 0;
   navbarHeight=0;
   wr=0; hr=0; xr=0; yr=0; r=0; yc=0; xc1=0; xc2=0;
-  dyUserCards=0; dhUserCards=0; dwUserCards=0;
+  dyUserCards=0; dhUserCards=0; dwUserCards=0; dxUserCards = {};
   dwCard=0; dhCard=0; dxCard=0; dyCard=0;
-  dxCardsArray = []; dxEndCardsArray =[];
-  assignedDeck=[];
-
 
   constructor(
     private game: GameService,
@@ -28,6 +25,17 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     private lobby: LobbyService,
     private app: AppComponent
   ) { }
+
+  getCanvas(){
+    let gamecanvas = document.getElementById('gamecanvas') as  HTMLCanvasElement;
+    return gamecanvas;
+  }
+
+  getCanvasContext(){
+    let gamecanvas = document.getElementById('gamecanvas') as  HTMLCanvasElement;
+    let gcCTX = gamecanvas.getContext("2d");
+    return gcCTX;
+  }
 
   setVariables(){
     this.navbarHeight = this.app.getNavbar().height;
@@ -58,9 +66,21 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     this.setVariables()
   }
 
+  removeCardFromUsersDeck(x: Array<number>){
+    let gcCTX = this.getCanvasContext();
+    gcCTX.fillRect(x[0], this.dyUserCards, this.dwUserCards, this.dhUserCards)
+  }
+
+  placeCardOnTable(card: string){
+    let gcCTX = this.getCanvasContext();
+    let img = this.game.getCardImage(card)
+    img.onload = () =>{
+      gcCTX.drawImage(img, this.dxCard, this.dyCard, this.dwCard, this.dhCard)
+    }
+  }
+
   ngAfterViewInit(){
-    let gamecanvas = document.getElementById('gamecanvas') as  HTMLCanvasElement;
-    let gcCTX = gamecanvas.getContext("2d");
+    let gcCTX = this.getCanvasContext();
 
     //rectange of the table
 
@@ -101,17 +121,20 @@ export class GameviewComponent implements OnInit, AfterViewInit {
             this.game.getCards(room, username).subscribe(
               res=>{
                 console.log(res)
-                this.assignedDeck = res["assignedDeck"];
-                for(let i=0; i<this.assignedDeck.length; i++){
-                    this.cardImages.push(this.game.cardImages(this.assignedDeck[i]));
+                let assignedDeck = res["assignedDeck"];
+                for(let i=0; i<assignedDeck.length; i++){
+                  let img = this.game.getCardImage(assignedDeck[i]);
                     let dx = this.dwUserCards * i;
-                    this.dxCardsArray.push(dx);
-                    this.dxEndCardsArray.push(dx + this.dwUserCards);
-                    this.cardImages[i].onload = () =>{
-                      gcCTX.drawImage(this.cardImages[i], dx, this.dyUserCards, this.dwUserCards, this.dhUserCards)
+                    this.dxUserCards[assignedDeck[i]] = [dx, dx + this.dwUserCards]
+                    img.onload = () =>{
+                      gcCTX.drawImage(img, dx, this.dyUserCards, this.dwUserCards, this.dhUserCards)
                     };
                 }
               },
+              err=>{console.log(err)}
+            )
+            this.game.getOnTable({room: room}).subscribe(
+              res=>{this.placeCardOnTable(res["cardOnTable"])},
               err=>{console.log(err)}
             )
           },
@@ -119,6 +142,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
         )
       })
 
+      let gamecanvas = this.getCanvas();
       gamecanvas.addEventListener("click", (e)=>{
         this.throwCard(e)
       })
@@ -141,39 +165,52 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   }
 
   findClickedCard(clicked: { x: any; y: any; }){
-    if(clicked.y<this.dyUserCards || clicked.y>this.dyUserCards+this.dhUserCards){
-      return {selectionMade: false, cardSelected: null}
+    //console.log(clicked.y, this.dyUserCards, this.dyUserCards+this.dhUserCards)
+    if(clicked.y<this.dyUserCards+this.navbarHeight || clicked.y>this.dyUserCards+this.dhUserCards+this.navbarHeight){
+      return {selectionMade: false, cardSelected: null, location: null}
     }
-    //let result=[];
-    let result = 0;
-    //console.log(this.dxCardsArray, this.dxEndCardsArray)
-    for(let i=0; i<this.dxCardsArray.length; i++){
-      if(clicked.x >= this.dxCardsArray[i] && clicked.x <= this.dxEndCardsArray[i]){
-        //result[0] = this.dxCardsArray[i];
-        //result[1] = this.dxEndCardsArray[i];
-        result = i;
+    let result = {selectionMade: false, cardSelected: null, location: null};
+    let keys = Object.keys(this.dxUserCards)
+    for(let i=0; i<keys.length; i++){
+      if(clicked.x >= this.dxUserCards[keys[i]][0] && clicked.x <= this.dxUserCards[keys[i]][1]){
+        result.selectionMade = true;
+        result.cardSelected = keys[i]
+        result.location = [this.dxUserCards[keys[i]][0], this.dxUserCards[keys[i]][1]]
+        delete this.dxUserCards[keys[i]]
         break;
       }
     }
-    //console.log(result)
-    return {selectionMade: true, cardSelected: this.assignedDeck[result]}
-
+    return result;
   }
 
-  throwCard(e){
+  throwCard(e: MouseEvent){
     //card thrown on the table
-    let gamecanvas = document.getElementById('gamecanvas') as  HTMLCanvasElement;
-    let gcCTX = gamecanvas.getContext("2d");
-
     let clicked = {x:e.x, y:e.y}
     let selection = this.findClickedCard(clicked);
-    // console.log(selection)
+
     if(selection.selectionMade === true){
-      let cardImage = new Image()
-      cardImage.src = "../../assets/PNG/" + selection.cardSelected + ".png";
-      cardImage.onload = ()=>{
-        gcCTX.drawImage(cardImage, this.dxCard, this.dyCard, this.dwCard, this.dhCard)
-      }
+      this.auth.fetchUsername().subscribe(
+        res =>{
+          let username = res['collectedUsername'];
+          this.lobby.findRoom(username).subscribe(
+            res=>{
+              let room = res['data'].room;
+              let data = {room: room, name: username, card: selection.cardSelected}
+              this.game.throwCard(data).subscribe(
+                res=>{
+                  if(res["thrown"] === true){
+                    this.placeCardOnTable(selection.cardSelected);
+                    this.removeCardFromUsersDeck(selection.location);
+                  }else{
+                    console.log("failed to throw card")
+                  }
+                },
+                err=>{console.log(err)}
+              )
+            },
+            err=>{console.log(err)}
+          )
+        })
     }
   }
 }

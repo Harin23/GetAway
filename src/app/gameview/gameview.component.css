@@ -1,5 +1,6 @@
 #gamecanvas{
     position: absolute;
+    background-color: lightsteelblue;
 }
 @media (min-width:361px) and (max-width: 575.98px) { 
 

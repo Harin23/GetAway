@@ -4,6 +4,8 @@
   spades = ["AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS"];
 
 
+
+
 -----above constructor----
   screenHeight=0;
   screenWidth=0;
@@ -11,9 +13,9 @@
 ------inside ngoninit--------
     this.screenHeight = window.innerHeight;
     this.screenWidth = window.innerWidth;
-
+------------------------
 //0, dwUserCards, dwUserCards*2, dwUserCards*3, dwUserCards*4, dwUserCards*5, dwUserCards*6, dwUserCards*7, dwUserCards*8, dwUserCards*9, dwUserCards*10, dwUserCards*11, dwUserCards*12
-
+---------------------------
 // let userCard1 = new Image();
     // userCard1.src = "../../assets/PNG/2C.png";
     // userCard1.onload = () =>{
@@ -79,3 +81,32 @@
     // userCard13.onload = () =>{
     //   gcCTX.drawImage(userCard13, dxUserCards[12], dyUserCards, dwUserCards, dhUserCards)
     // };
+------------------
+      // let cardImage = new Image()
+      // cardImage.src = "../../assets/PNG/" + selection.cardSelected + ".png";
+      // cardImage.onload = ()=>{
+      //   gcCTX.drawImage(cardImage, this.dxCard, this.dyCard, this.dwCard, this.dhCard)
+      // }
+---------------
+  removeIndexedElement(arrayPassed: any[], index: any){
+    let temp = []; let array = arrayPassed.slice();
+    temp = array.splice(0, index);
+    temp.push(...array.splice(1)); 
+    return temp;
+  }
+--
+        console.log(this.dxCardsArray, this.dxEndCardsArray)
+        this.dxCardsArray=this.removeIndexedElement(this.dxCardsArray, i)
+        this.dxEndCardsArray=this.removeIndexedElement(this.dxEndCardsArray, i)
+        console.log(this.dxCardsArray, this.dxEndCardsArray)
+--
+      // let imgData= gcCTX.getImageData(selection.cardSelected[0], this.dyUserCards, this.dwUserCards, this.dhUserCards);
+      // gcCTX.putImageData(imgData, this.dxCard, this.dyCard)
+--
+gcCTX.fillRect(selection.cardSelected[0], this.dyUserCards, this.dwUserCards, this.dhUserCards)
+      gcCTX.drawImage(this.cardImages[selection.cardSelected[1]], this.dxCard, this.dyCard, this.dwCard, this.dhCard)
+----
+    thrown0: [String],
+    thrown1: [String],
+    thrown2: [String],
+    thrown3: [String],
