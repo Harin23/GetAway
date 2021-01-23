@@ -62,7 +62,7 @@ export class GameService {
   };
 
   onTable(data: any){
-    console.log(this.socket, data)
+    // console.log(this.socket, data)
     this.socket.emit("cardOnTable", data);
   };
 

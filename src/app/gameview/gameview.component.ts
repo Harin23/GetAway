@@ -179,7 +179,6 @@ export class GameviewComponent implements OnInit, AfterViewInit {
         result.selectionMade = true;
         result.cardSelected = keys[i]
         result.location = [this.dxUserCards[keys[i]][0], this.dxUserCards[keys[i]][1]]
-        delete this.dxUserCards[keys[i]]
         break;
       }
     }
@@ -204,6 +203,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
                   if(res["thrown"] === true){
                     // this.placeCardOnTable(selection.cardSelected);
                     this.removeCardFromUsersDeck(selection.location);
+                    delete this.dxUserCards[selection.cardSelected]
                     this.game.onTable(data)
                   }else{
                     console.log("failed to throw card")

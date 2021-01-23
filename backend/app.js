@@ -39,18 +39,9 @@ io.of('/lobby').on('connection', (socket) => {
         io.of('lobby').to(room).emit("tableCard", card);
     }); 
 
-    /*socket.on("typing", ({room, username}) =>{
-        socket.to(room).emit(`${username} is typing...`);
-    }); */
 });
 
 
 server.listen(port, () => {
     console.log(`Server listening on http://localhost:${port}`);
 });
-
-
-
-
-
-
