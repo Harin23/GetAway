@@ -1,6 +1,7 @@
 ***Notes**** 
--to test the game with two users, in gamedata.js file in routes folder change line 87 from "= turn" to 
+-to test the card throwing with two users, in gamedata.js file in routes folder change line 87 from "= turn" to 
 "= 0"
+-to test the users getInfo function on page load with less than 4 users change line 36 in gamedata.js
 
 
 

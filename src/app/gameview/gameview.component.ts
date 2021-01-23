@@ -15,9 +15,11 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   canvasHeight = 0;
   canvasWidth = 0;
   navbarHeight=0;
+  fontSize = 0;
   wr=0; hr=0; xr=0; yr=0; r=0; yc=0; xc1=0; xc2=0;
   dyUserCards=0; dhUserCards=0; dwUserCards=0; dxUserCards = {};
   dwCard=0; dhCard=0; dxCard=0; dyCard=0;
+  OtherUsersNamesX = []; otherUsersNamesY = []; OtherUsersNamesTextWidth=0;
 
   subscription1$: Subscription;
 
@@ -60,8 +62,16 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     this.dwCard = this.r;
     this.dhCard = this.hr*0.7;
     this.dxCard = ((this.xc1+this.xc2)*0.5)-(0.5*this.dwCard);
-    this.dyCard = this.yr + (this.hr - this.dhCard)*0.5
-  
+    this.dyCard = this.yr + (this.hr - this.dhCard)*0.5;
+
+    this.OtherUsersNamesTextWidth=this.xr - this.r;
+    this.OtherUsersNamesX[0] = 0;
+    this.OtherUsersNamesX[1] = ((this.xr + this.xc2)/2) - (this.OtherUsersNamesTextWidth/2);
+    this.OtherUsersNamesX[2] = this.xc2 + this.r;
+    this.otherUsersNamesY[0] = this.yr+this.navbarHeight;
+    this.otherUsersNamesY[1] = this.navbarHeight+10;
+    this.otherUsersNamesY[2] = this.yr+this.navbarHeight;
+    this.fontSize = this.canvasHeight*0.1;
   }
 
   ngOnInit() {
@@ -79,6 +89,21 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     let img = this.game.getCardImage(card)
     img.onload = () =>{
       gcCTX.drawImage(img, this.dxCard, this.dyCard, this.dwCard, this.dhCard)
+    }
+  }
+
+  displayOtherUsers(otherUsers: Object){
+    let gcCTX = this.getCanvasContext();
+    let keys = Object.keys(otherUsers);
+    for(let i=0; i<keys.length; i++){
+      console.log(otherUsers[keys[i]], this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
+      gcCTX.font = this.fontSize + "px" + " Arial bolder"
+      gcCTX.fillStyle = "black"
+      gcCTX.fillText(keys[i]+":", this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
+
+      gcCTX.font = this.fontSize + "px" + " Arial bolder"
+      gcCTX.fillStyle = "blue"
+      gcCTX.fillText(otherUsers[keys[i]], this.OtherUsersNamesX[i], this.otherUsersNamesY[i]+this.fontSize, this.OtherUsersNamesTextWidth)
     }
   }
 
@@ -109,7 +134,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     const maxWidthText = dxCardOutline - this.xc1;
     const yText = this.yc*1.05;
     const xText1 = this.xc1;
-    gcCTX.font = "100px Arial bolder"
+    gcCTX.font = (this.fontSize*1.4) + "px" +" Arial bolder"
     gcCTX.fillStyle = "rgb(128, 0, 0)"
     gcCTX.fillText("GET", xText1, yText, maxWidthText)
     const xText2 = dxCardOutline + dwCardOutline;
@@ -121,9 +146,11 @@ export class GameviewComponent implements OnInit, AfterViewInit {
         this.lobby.findRoom(username).subscribe(
           res=>{
             let room = res['data'].room;
-            this.game.getCards(room, username).subscribe(
+            this.game.getGameInfo(room, username).subscribe(
               res=>{
                 console.log(res)
+                this.placeCardOnTable(res["cardOnTable"]);
+                this.displayOtherUsers(res["otherUsers"]);
                 let assignedDeck = res["assignedDeck"];
                 for(let i=0; i<assignedDeck.length; i++){
                   let img = this.game.getCardImage(assignedDeck[i]);
@@ -134,11 +161,9 @@ export class GameviewComponent implements OnInit, AfterViewInit {
                     };
                 }
               },
-              err=>{console.log(err)}
-            )
-            this.game.getOnTable({room: room}).subscribe(
-              res=>{this.placeCardOnTable(res["cardOnTable"])},
-              err=>{console.log(err)}
+              err=>{
+                console.log(err)
+              }
             )
           },
           err=>{console.log(err)}
@@ -149,22 +174,6 @@ export class GameviewComponent implements OnInit, AfterViewInit {
       gamecanvas.addEventListener("click", (e)=>{
         this.throwCard(e)
       })
-
-    /*
-    //top texts
-    const yTopTexts = this.yr - 40;
-    //Current turn
-    var turnText = "CURRENT TURN: " + this.username
-    gcCTX.font = "50px Arial bolder"
-    gcCTX.fillStyle = "black"
-    gcCTX.fillText(turnText, 0, yTopTexts)
-    //timer
-    var timerString = "TIME LEFT: " + this.timer.toString()
-    //console.log(timerString)
-    gcCTX.font = "50px Arial bolder"
-    gcCTX.fillStyle = "black"
-    gcCTX.fillText(timerString, this.xc2, yTopTexts)
-    */
   }
 
   findClickedCard(clicked: { x: any; y: any; }){
