@@ -12,7 +12,7 @@ export class GameService {
   private shuffleURL = "http://localhost:3000/gamedata/shuffle";
   private getCardsURL = "http://localhost:3000/gamedata/getgameinfo";
   private throwCardsURL = "http://localhost:3000/gamedata/throwcard";
-  private onTableURL = "http://localhost:3000/gamedata/ontable";
+  private cardCountURL = "http://localhost:3000/gamedata/getcardcount";
 
   private socket: any;
 
@@ -30,9 +30,8 @@ export class GameService {
     return this.http.post(this.shuffleURL, roomInfo, {responseType: 'text'});
   };
 
-  getGameInfo(room: string, username: string){
-    let info = {room: room, name: username}
-    return this.http.post(this.getCardsURL, info, {responseType: 'json'})
+  getGameInfo(data: object){
+    return this.http.post(this.getCardsURL, data, {responseType: 'json'})
   }
 
   getCardImage(card: string){
@@ -46,12 +45,11 @@ export class GameService {
     return this.http.post(this.throwCardsURL, data, {responseType: 'json'})
   }
 
-  // getOnTable(data: object){
-  //   return this.http.post(this.onTableURL, data, {responseType: 'json'})
-  // }
+  getCardCount(data: object){
+    return this.http.post(this.cardCountURL, data, {responseType: 'json'})
+  }
 
   //socket-io
-
 
   listen(eventName: string) : Observable<any>{
     return new Observable((Subscribe) =>{

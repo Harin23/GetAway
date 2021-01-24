@@ -76,7 +76,23 @@ export class GameviewComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.setVariables()
-    this.subscription1$ = this.game.listen("tableCard").subscribe((data) => this.placeCardOnTable(data));
+    this.subscription1$ = this.game.listen("tableCard").subscribe((data) =>{
+      console.log("recieved: ", data)
+      let room = data.room; let throwersName = data.name; let card = data.card;
+      this.placeCardOnTable(card);
+      this.auth.fetchUsername().subscribe(
+        res =>{
+          let username = res['collectedUsername'];
+          if(throwersName !== username){
+            this.game.getCardCount({room: room, name: username}).subscribe(
+              res=>{console.log(res); this.displayOtherUsers(res["otherUsers"])},
+              err=>{console.log(err)}
+            )
+          }
+        },
+        err=>{console.log(err)}
+      )
+    });
   }
 
   removeCardFromUsersDeck(x: Array<number>){
@@ -96,7 +112,10 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     let gcCTX = this.getCanvasContext();
     let keys = Object.keys(otherUsers);
     for(let i=0; i<keys.length; i++){
-      console.log(otherUsers[keys[i]], this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
+      //console.log(otherUsers[keys[i]], this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
+      gcCTX.fillStyle = "lightsteelblue"
+    gcCTX.fillRect(this.OtherUsersNamesX[i],this.otherUsersNamesY[i],this.OtherUsersNamesTextWidth,this.fontSize*2);
+
       gcCTX.font = this.fontSize + "px" + " Arial bolder"
       gcCTX.fillStyle = "black"
       gcCTX.fillText(keys[i]+":", this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
@@ -146,9 +165,9 @@ export class GameviewComponent implements OnInit, AfterViewInit {
         this.lobby.findRoom(username).subscribe(
           res=>{
             let room = res['data'].room;
-            this.game.getGameInfo(room, username).subscribe(
+            this.game.getGameInfo({room: room, name: username}).subscribe(
               res=>{
-                console.log(res)
+                //console.log(res)
                 this.placeCardOnTable(res["cardOnTable"]);
                 this.displayOtherUsers(res["otherUsers"]);
                 let assignedDeck = res["assignedDeck"];
@@ -210,7 +229,6 @@ export class GameviewComponent implements OnInit, AfterViewInit {
               this.game.throwCard(data).subscribe(
                 res=>{
                   if(res["thrown"] === true){
-                    // this.placeCardOnTable(selection.cardSelected);
                     this.removeCardFromUsersDeck(selection.location);
                     delete this.dxUserCards[selection.cardSelected]
                     this.game.onTable(data)

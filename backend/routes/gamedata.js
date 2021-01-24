@@ -24,6 +24,7 @@ let index=0;
 let otherUsers={};
 
 function getRoomInfo(req, res, next){
+    otherUsers={}; //without clearing here, this obj stores info from previous req causing error
     let roomReq = req.body.room;
     let userReq = req.body.name;
     lobbyModel.findOne({ room: roomReq }, (err, lobbyRoom) => {
@@ -33,7 +34,7 @@ function getRoomInfo(req, res, next){
             res.status(400).send("Room does not exist")
         }else{
             let users = lobbyRoom.users;
-            if(users.length <4){
+            if(users.length >4){
                 res.status(400).send("Not enough users")
             }else{
                 index = users.indexOf(userReq);
@@ -96,7 +97,7 @@ router.post('/shuffle', (req,res) => {
                         room.deck2 = deck.slice(26,39);
                         room.deck3 = deck.slice(39,52);
                         room.cardsShuffled = true;
-                        room.turn = turn;
+                        room.turn = 0;
                         res.status(200).send("Cards Shuffled")
                     }
                 }
@@ -114,7 +115,6 @@ router.post('/shuffle', (req,res) => {
 
 router.post('/getgameinfo', getRoomInfo, (req,res) => {
     let roomReq = req.body.room;
-    // let userReq = req.body.name;
     gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
         if (err){
             console.log(err)
@@ -127,14 +127,12 @@ router.post('/getgameinfo', getRoomInfo, (req,res) => {
             //console.log(otherUsers)
             let keys = [];
             keys = Object.keys(otherUsers);
-            //console.log(keys)
             for(let i=0; i<keys.length; i++){
                 let deckName = otherUsers[keys[i]];
                 otherUsers[keys[i]] = gameRoom[deckName].length;
             }
             //console.log(assignedDeck)
             res.status(200).send({assignedDeck, cardOnTable, otherUsers});
-            otherUsers={}; //without clearing here, this obj stores info from previous req causing error
         }
     })
 })
@@ -173,7 +171,25 @@ router.post('/throwcard', getRoomInfo, (req,res) => {
             };
         };
     });
-
 });
+
+router.post("/getcardcount", getRoomInfo, (req, res)=>{
+    let roomReq = req.body.room;
+    gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
+        if (err){
+            console.log(err)
+        }else if (gameRoom === null){
+            res.status(400).send("Room does not exist")
+        }else{
+            let keys = [];
+            keys = Object.keys(otherUsers);
+            for(let i=0; i<keys.length; i++){
+                let deckName = otherUsers[keys[i]];
+                otherUsers[keys[i]] = gameRoom[deckName].length;
+            }
+            res.status(200).send({otherUsers});
+        }
+    })
+})
 
 module.exports = router
