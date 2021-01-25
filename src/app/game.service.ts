@@ -51,6 +51,10 @@ export class GameService {
 
   //socket-io
 
+  joinRoom(room: string){
+    this.socket.emit("join_room", room);
+  };
+
   listen(eventName: string) : Observable<any>{
     return new Observable((Subscribe) =>{
       this.socket.on(eventName, (data) =>{
@@ -61,7 +65,7 @@ export class GameService {
 
   onTable(data: any){
     // console.log(this.socket, data)
-    this.socket.emit("cardOnTable", data);
+    this.socket.emit("throwCard", data);
   };
 
 }

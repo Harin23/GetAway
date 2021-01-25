@@ -3,7 +3,7 @@ const gamedataSchema = new mongoose.Schema({
     room: String,
     cardsShuffled: Boolean,
     gameFinished: Boolean,
-    cardOnTable: String,
+    cardOnTable: [String],
     deck0: [String],
     deck1: [String],
     deck2: [String],

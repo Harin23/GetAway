@@ -75,8 +75,8 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.setVariables()
-    this.subscription1$ = this.game.listen("tableCard").subscribe((data) =>{
+    this.setVariables();
+    this.subscription1$ = this.game.listen("cardThrown").subscribe((data) =>{
       console.log("recieved: ", data)
       let room = data.room; let throwersName = data.name; let card = data.card;
       this.placeCardOnTable(card);
@@ -84,8 +84,12 @@ export class GameviewComponent implements OnInit, AfterViewInit {
         res =>{
           let username = res['collectedUsername'];
           if(throwersName !== username){
-            this.game.getCardCount({room: room, name: username}).subscribe(
-              res=>{console.log(res); this.displayOtherUsers(res["otherUsers"])},
+            this.game.getGameInfo({room: room, name: username}).subscribe(
+              res=>{
+                console.log(res); 
+                this.displayOtherUsers(res["otherUsers"])
+                this.displayDeck(res["assignedDeck"])
+              },
               err=>{console.log(err)}
             )
           }
@@ -98,6 +102,18 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   removeCardFromUsersDeck(x: Array<number>){
     let gcCTX = this.getCanvasContext();
     gcCTX.fillRect(x[0], this.dyUserCards, this.dwUserCards, this.dhUserCards)
+  }
+
+  displayDeck(assignedDeck: Array<string>){
+    let gcCTX = this.getCanvasContext();
+    for(let i=0; i<assignedDeck.length; i++){
+      let img = this.game.getCardImage(assignedDeck[i]);
+        let dx = this.dwUserCards * i;
+        this.dxUserCards[assignedDeck[i]] = [dx, dx + this.dwUserCards]
+        img.onload = () =>{
+          gcCTX.drawImage(img, dx, this.dyUserCards, this.dwUserCards, this.dhUserCards)
+        };
+    }
   }
 
   placeCardOnTable(card: string){
@@ -165,20 +181,13 @@ export class GameviewComponent implements OnInit, AfterViewInit {
         this.lobby.findRoom(username).subscribe(
           res=>{
             let room = res['data'].room;
+            this.game.joinRoom(room)
             this.game.getGameInfo({room: room, name: username}).subscribe(
               res=>{
                 //console.log(res)
                 this.placeCardOnTable(res["cardOnTable"]);
                 this.displayOtherUsers(res["otherUsers"]);
-                let assignedDeck = res["assignedDeck"];
-                for(let i=0; i<assignedDeck.length; i++){
-                  let img = this.game.getCardImage(assignedDeck[i]);
-                    let dx = this.dwUserCards * i;
-                    this.dxUserCards[assignedDeck[i]] = [dx, dx + this.dwUserCards]
-                    img.onload = () =>{
-                      gcCTX.drawImage(img, dx, this.dyUserCards, this.dwUserCards, this.dhUserCards)
-                    };
-                }
+                this.displayDeck(res["assignedDeck"])
               },
               err=>{
                 console.log(err)
@@ -233,7 +242,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
                     delete this.dxUserCards[selection.cardSelected]
                     this.game.onTable(data)
                   }else{
-                    console.log("failed to throw card")
+                    console.log(res["reason"])
                   }
                 },
                 err=>{console.log(err)}

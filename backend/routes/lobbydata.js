@@ -26,7 +26,7 @@ router.post('/create', (req, res) => {
    // console.log(roomInfo)
     let room = new lobbyModel(roomInfo);
     room.save();
-    let gameInfo = {room: roomInfo.room, cardsShuffled: false, cardOnTable: "AS"}
+    let gameInfo = {room: roomInfo.room, cardsShuffled: false, cardOnTable: ["AS"]}
     let gameRoom = new gamedataModel(gameInfo);
     gameRoom.save();
     res.status(200).send("lobby created")

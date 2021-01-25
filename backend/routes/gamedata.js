@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const lobbyModel = require('../models/lobby');
 const gamedataModel = require('../models/gamedata');
+const { IfStmt } = require('@angular/compiler');
 
 db_uri = "mongodb+srv://harin_getaway_game24:vWey6Oa4D9wOzDY7@getaway.svfza.mongodb.net/getaway-users?retryWrites=true&w=majority"
 mongoose.connect(db_uri, {useNewUrlParser: true, useUnifiedTopology: true }, error => {
@@ -18,6 +19,7 @@ deck =
 "AC", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "JC", "QC", "KC",
 "AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH",
 "AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"];
+deckSorted = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 
 let assignedDeckName="";
 let index=0;
@@ -102,9 +104,6 @@ router.post('/shuffle', (req,res) => {
                     }
                 }
             }else{
-                //check if the game is currently running 
-                //by checking if a user has gotten rid of their cards
-                //if not then update the user with the cards they got left.
                 console.log("game already started")
                 res.status(200).send("cards already shuffled")
             }
@@ -122,7 +121,7 @@ router.post('/getgameinfo', getRoomInfo, (req,res) => {
             res.status(400).send("Room does not exist")
         }else{
             //console.log(room["deck0"])
-            let cardOnTable = gameRoom["cardOnTable"];
+            let cardOnTable = gameRoom["cardOnTable"][0];
             let assignedDeck = gameRoom[assignedDeckName];
             //console.log(otherUsers)
             let keys = [];
@@ -131,7 +130,6 @@ router.post('/getgameinfo', getRoomInfo, (req,res) => {
                 let deckName = otherUsers[keys[i]];
                 otherUsers[keys[i]] = gameRoom[deckName].length;
             }
-            //console.log(assignedDeck)
             res.status(200).send({assignedDeck, cardOnTable, otherUsers});
         }
     })
@@ -149,25 +147,71 @@ router.post('/throwcard', getRoomInfo, (req,res) => {
             res.status(400).send("Room does not exist")
         }else{
             let turn = gameRoom["turn"];
+            let collector=turn;
+            let cardsOnTable = gameRoom["cardOnTable"];
             if(index === turn){
+                if(turn>= 0 && turn<1){
+                    turn +=1;
+                }else{
+                    turn = 0;
+                }
+                gameRoom["turn"] = turn;
                 let cards = gameRoom[assignedDeckName];
+                let suitOnTable = cardsOnTable[0][cardsOnTable[0].length-1]
                 let index = cards.indexOf(cardThrown);
                 if(index !== -1){
                     let temp = cards.splice(0, index);
                     temp.push(...cards.splice(1));
-                    if(turn>= 0 && turn<1){
-                        turn +=1;
-                    }else{
-                        turn = 0;
-                    }
                     gameRoom[assignedDeckName] = temp;
-                    gameRoom["cardOnTable"] = cardThrown;
-                    gameRoom["turn"] = turn;
-                    gameRoom.save();
-                    res.status(200).send({thrown: true});
-                }else{res.status(200).send({thrown: false})};
+                    if(cardThrown !== "AS" && cardsOnTable.length<2){
+                        cardsOnTable.unshift(cardThrown);
+                        gameRoom["cardOnTable"]=cardsOnTable;
+                    }else if(cardThrown !== "AS" && cardsOnTable.length>2){
+                        cardsOnTable = [];
+                        cardsOnTable.push(cardThrown)
+                        gameRoom["cardOnTable"]=cardsOnTable;
+                    }
+                    console.log(cardThrown[cardThrown.length-1] === suitOnTable, cardThrown[1], suitOnTable)
+                    if(cardThrown[1] === suitOnTable){
+                        gameRoom.save();
+                        res.status(200).send({thrown: true});
+                    }else{
+                        //the user that threw the highest card that round has to collect
+                        //find the index of the highest card thrown:
+                        let index=0, cardValue=0, numberOfCardsOnTable = cardsOnTable.length, collectorDeck, deckSpaceLeft, pickUpAmount;
+                        console.log("cardsOnTable: ", cardsOnTable)
+                        for(let i=1; i<numberOfCardsOnTable; i++){
+                            let card = cardsOnTable[i];
+                            let tempIndex = deckSorted.indexOf(card[0]);
+                            if(tempIndex >= cardValue){
+                                cardValue = tempIndex;
+                                index = i;
+                            }
+                        }
+                        
+                        for(let i=0; i<index; i++){
+                            if(collector === 0){
+                                collector = 3;
+                            }else{
+                                collector -= 1;
+                            }
+                        }
+                        console.log("index: ", index, " collector: ", collector)
+                        collectorDeck = gameRoom["deck"+collector];
+                        console.log("collectors deck before: ", collectorDeck)
+                        deckSpaceLeft = 13 - collectorDeck.length;
+                        pickUpAmount = Math.min(deckSpaceLeft, cardsOnTable.length)
+                        console.log("pickup", pickUpAmount, "deckSpaceLeft ", deckSpaceLeft, "cardsOnTable.length ", cardsOnTable.length)
+                        for(let i=pickUpAmount-1; i>=0; i--){
+                            collectorDeck.push(cardsOnTable[i])
+                        }
+                        console.log("")
+                        gameRoom.save();
+                        res.status(200).send({thrown: true});
+                    }
+                }else{res.status(200).send({thrown: false, reason: "Card not found"})};
             }else{
-                res.status(200).send({thrown: false})
+                res.status(200).send({thrown: false, reason: "Not your turn"})
             };
         };
     });
