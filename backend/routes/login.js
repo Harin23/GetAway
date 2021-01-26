@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const router = express.Router();
 const mongoose = require('mongoose');
 const userModel = require('../models/user');
+const middleware = require("./middleware")
 
 //connect to db
 db_uri = "mongodb+srv://harin_getaway_game24:vWey6Oa4D9wOzDY7@getaway.svfza.mongodb.net/getaway-users?retryWrites=true&w=majority"
@@ -13,25 +14,6 @@ mongoose.connect(db_uri, {useNewUrlParser: true, useUnifiedTopology: true }, err
         console.log('login route connected to mongoDB')
     }
 });
-
-//use this function to check token once the user is signed in
-function verifyToken(req, res, next){
-    if (!req.headers.authorization){
-        res.status(401).send('Unauthorized request');
-    }
-    let token = req.headers.authorization.split(" ")[1]
-    if (token === 'null'){
-        res.status(401).send('Unauthorized request');
-    }
-    let payload = jwt.decode(token, 'secretKey')
-    if (!payload){
-        res.status(401).send('Unauthorized request');
-    }else{
-        let payloadCollected = payload['subject'];
-        res.locals.payloadCollected = payloadCollected;
-        next();
-    }
-}
 
 //this is the /login route:
 router.post('/', (req,res) => {
@@ -133,7 +115,7 @@ router.post('/register', (req,res) => {
 });
         
 
-router.get('/username', verifyToken, (req,res) => {
+router.get('/username', middleware.verifyToken, (req,res) => {
     let payloadCollected = res.locals.payloadCollected;
     userModel.findOne({ _id: payloadCollected}, (err, user) => {
         if (err){
@@ -147,7 +129,7 @@ router.get('/username', verifyToken, (req,res) => {
     });
 });
 
-router.post('/verify', verifyToken, (req,res) => {
+router.post('/verify', middleware.verifyToken, (req,res) => {
     let payloadCollected = res.locals.payloadCollected;
     let user = req.body;
     localUsername = user.username;

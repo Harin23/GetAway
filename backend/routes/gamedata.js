@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const lobbyModel = require('../models/lobby');
 const gamedataModel = require('../models/gamedata');
-const { IfStmt } = require('@angular/compiler');
+const middleware = require("./middleware")
 
 db_uri = "mongodb+srv://harin_getaway_game24:vWey6Oa4D9wOzDY7@getaway.svfza.mongodb.net/getaway-users?retryWrites=true&w=majority"
 mongoose.connect(db_uri, {useNewUrlParser: true, useUnifiedTopology: true }, error => {
@@ -20,39 +19,6 @@ deck =
 "AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH",
 "AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"];
 deckSorted = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
-
-function getRoomInfo(req, res, next){
-    //otherUsers={}; //without clearing here, this obj stores info from previous req causing error
-    let roomReq = req.body.room;
-    let userReq = req.body.name;
-    lobbyModel.findOne({ room: roomReq }, (err, lobbyRoom) => {
-        if (err){
-            console.log(err)
-        }else if (lobbyRoom === null){
-            res.status(400).send("Room does not exist")
-        }else{
-            let users = lobbyRoom.users;
-            if(users.length >14){
-                res.status(400).send("Not enough users")
-            }else{
-                let index = users.indexOf(userReq);
-                let assignedDeckName = "deck" + index;
-                let otherUsers =  {};
-                for(let i=0; i<users.length; i++){
-                    //console.log(index, i !== index)
-                    if(i !== index){
-                        otherUsers[users[i]] = "deck" + i;
-                        //console.log(i, otherUsers, users[i])
-                    }
-                }
-                res.locals.assignedDeckName = assignedDeckName;
-                res.locals.index = index;
-                res.locals.otherUsers = otherUsers;
-                next();
-            }
-        }
-    })
-}
 
 router.post('/shuffle', (req,res) => {
     roomName = req.body['room'];
@@ -112,7 +78,7 @@ router.post('/shuffle', (req,res) => {
 
 })
 
-router.post('/getgameinfo', getRoomInfo, (req,res) => {
+router.post('/getgameinfo', middleware.getRoomInfo, (req,res) => {
     let roomReq = req.body.room;
     let assignedDeckName = res.locals.assignedDeckName;
     let otherUsers = res.locals.otherUsers;
@@ -137,7 +103,7 @@ router.post('/getgameinfo', getRoomInfo, (req,res) => {
     })
 })
 
-router.post('/throwcard', getRoomInfo, (req,res) => {
+router.post('/throwcard', middleware.getRoomInfo, (req,res) => {
     let roomReq = req.body.room;
     // let userReq = req.body.name;
     let cardThrown = req.body.card;
@@ -222,7 +188,7 @@ router.post('/throwcard', getRoomInfo, (req,res) => {
     });
 });
 
-router.post("/getcardcount", getRoomInfo, (req, res)=>{
+router.post("/getcardcount", middleware.getRoomInfo, (req, res)=>{
     let roomReq = req.body.room;
     gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
         if (err){
