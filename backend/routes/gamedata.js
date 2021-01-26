@@ -153,7 +153,7 @@ router.post('/throwcard', getRoomInfo, (req,res) => {
             let turn = gameRoom["turn"];
             let collector=turn;
             let cardsOnTable = gameRoom["cardOnTable"];
-            console.log("cardsOnTable before resetting: ", cardsOnTable)
+            //console.log("cardsOnTable before resetting: ", cardsOnTable)
             if(requestingUserIndex === turn){
                 if(turn>= 0 && turn<3){
                     turn +=1;
@@ -176,8 +176,8 @@ router.post('/throwcard', getRoomInfo, (req,res) => {
                         cardsOnTable.push(cardThrown)
                         gameRoom["cardOnTable"]=cardsOnTable;
                     }
-                    console.log("cardsOnTable after resetting: ", cardsOnTable)
-                    console.log(cardThrown[cardThrown.length-1] === suitOnTable, cardThrown[cardThrown.length-1], suitOnTable)
+                    //console.log("cardsOnTable after resetting: ", cardsOnTable)
+                    //console.log(cardThrown[cardThrown.length-1] === suitOnTable, cardThrown[cardThrown.length-1], suitOnTable)
                     if(cardThrown[cardThrown.length-1] === suitOnTable || cardsOnTable.length === 1){
                         gameRoom.save();
                         res.status(200).send({thrown: true});
@@ -201,16 +201,16 @@ router.post('/throwcard', getRoomInfo, (req,res) => {
                                 collector -= 1;
                             }
                         }
-                        console.log("index: ", index, " collector: ", collector)
+                        //console.log("index: ", index, " collector: ", collector)
                         collectorDeck = gameRoom["deck"+collector];
-                        console.log("collectors deck before: ", collectorDeck)
+                        //console.log("collectors deck before: ", collectorDeck)
                         deckSpaceLeft = 13 - collectorDeck.length;
                         pickUpAmount = Math.min(deckSpaceLeft, cardsOnTable.length)
-                        console.log("pickup", pickUpAmount, "deckSpaceLeft ", deckSpaceLeft, "cardsOnTable.length ", cardsOnTable.length)
+                        //console.log("pickup", pickUpAmount, "deckSpaceLeft ", deckSpaceLeft, "cardsOnTable.length ", cardsOnTable.length)
                         for(let i=pickUpAmount-1; i>=0; i--){
                             collectorDeck.push(cardsOnTable[i])
                         }
-                        console.log("")
+                        gameRoom["turn"] = collector;
                         gameRoom.save();
                         res.status(200).send({thrown: true});
                     }
