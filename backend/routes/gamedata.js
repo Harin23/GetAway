@@ -21,12 +21,8 @@ deck =
 "AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"];
 deckSorted = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 
-let assignedDeckName="";
-let index=0;
-let otherUsers={};
-
 function getRoomInfo(req, res, next){
-    otherUsers={}; //without clearing here, this obj stores info from previous req causing error
+    //otherUsers={}; //without clearing here, this obj stores info from previous req causing error
     let roomReq = req.body.room;
     let userReq = req.body.name;
     lobbyModel.findOne({ room: roomReq }, (err, lobbyRoom) => {
@@ -36,11 +32,12 @@ function getRoomInfo(req, res, next){
             res.status(400).send("Room does not exist")
         }else{
             let users = lobbyRoom.users;
-            if(users.length >4){
+            if(users.length >14){
                 res.status(400).send("Not enough users")
             }else{
-                index = users.indexOf(userReq);
-                assignedDeckName = "deck" + index;
+                let index = users.indexOf(userReq);
+                let assignedDeckName = "deck" + index;
+                let otherUsers =  {};
                 for(let i=0; i<users.length; i++){
                     //console.log(index, i !== index)
                     if(i !== index){
@@ -48,6 +45,9 @@ function getRoomInfo(req, res, next){
                         //console.log(i, otherUsers, users[i])
                     }
                 }
+                res.locals.assignedDeckName = assignedDeckName;
+                res.locals.index = index;
+                res.locals.otherUsers = otherUsers;
                 next();
             }
         }
@@ -70,7 +70,7 @@ router.post('/shuffle', (req,res) => {
             room.save();
             let shuffled = room.cardsShuffled;
             if (shuffled === false){
-                //shuffle cards
+                //shuffle requestingUserCards
                 let hold, newPos;
                 for (var i=deck.length-1; i>0; i--){
                     hold = deck[i];
@@ -99,13 +99,13 @@ router.post('/shuffle', (req,res) => {
                         room.deck2 = deck.slice(26,39);
                         room.deck3 = deck.slice(39,52);
                         room.cardsShuffled = true;
-                        room.turn = 0;
+                        room.turn = turn;
                         res.status(200).send("Cards Shuffled")
                     }
                 }
             }else{
                 console.log("game already started")
-                res.status(200).send("cards already shuffled")
+                res.status(200).send("requestingUserCards already shuffled")
             }
         }
     })
@@ -114,16 +114,18 @@ router.post('/shuffle', (req,res) => {
 
 router.post('/getgameinfo', getRoomInfo, (req,res) => {
     let roomReq = req.body.room;
+    let assignedDeckName = res.locals.assignedDeckName;
+    let otherUsers = res.locals.otherUsers;
+    console.log("line 125", otherUsers)
     gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
         if (err){
             console.log(err)
         }else if (gameRoom === null){
             res.status(400).send("Room does not exist")
         }else{
-            //console.log(room["deck0"])
             let cardOnTable = gameRoom["cardOnTable"][0];
             let assignedDeck = gameRoom[assignedDeckName];
-            //console.log(otherUsers)
+            console.log("requesting user: ", req.body.name, "other users: ", otherUsers)
             let keys = [];
             keys = Object.keys(otherUsers);
             for(let i=0; i<keys.length; i++){
@@ -140,6 +142,8 @@ router.post('/throwcard', getRoomInfo, (req,res) => {
     // let userReq = req.body.name;
     let cardThrown = req.body.card;
     //console.log(roomReq, userReq)
+    let requestingUserIndex = res.locals.index;
+    let assignedDeckName = res.locals.assignedDeckName;
     gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
         if (err){
             console.log(err)
@@ -149,37 +153,38 @@ router.post('/throwcard', getRoomInfo, (req,res) => {
             let turn = gameRoom["turn"];
             let collector=turn;
             let cardsOnTable = gameRoom["cardOnTable"];
-            if(index === turn){
-                if(turn>= 0 && turn<1){
+            console.log("cardsOnTable before resetting: ", cardsOnTable)
+            if(requestingUserIndex === turn){
+                if(turn>= 0 && turn<3){
                     turn +=1;
                 }else{
                     turn = 0;
                 }
                 gameRoom["turn"] = turn;
-                let cards = gameRoom[assignedDeckName];
+                let requestingUserCards = gameRoom[assignedDeckName];
                 let suitOnTable = cardsOnTable[0][cardsOnTable[0].length-1]
-                let index = cards.indexOf(cardThrown);
-                if(index !== -1){
-                    let temp = cards.splice(0, index);
-                    temp.push(...cards.splice(1));
+                let thrownCardIndex = requestingUserCards.indexOf(cardThrown);
+                if(thrownCardIndex !== -1){
+                    let temp = requestingUserCards.splice(0, thrownCardIndex);
+                    temp.push(...requestingUserCards.splice(1));
                     gameRoom[assignedDeckName] = temp;
-                    if(cardThrown !== "AS" && cardsOnTable.length<2){
+                    if(cardThrown !== "AS" && cardsOnTable.length+1<=4){
                         cardsOnTable.unshift(cardThrown);
                         gameRoom["cardOnTable"]=cardsOnTable;
-                    }else if(cardThrown !== "AS" && cardsOnTable.length>2){
+                    }else if(cardThrown !== "AS" && cardsOnTable.length+1>4){
                         cardsOnTable = [];
                         cardsOnTable.push(cardThrown)
                         gameRoom["cardOnTable"]=cardsOnTable;
                     }
-                    console.log(cardThrown[cardThrown.length-1] === suitOnTable, cardThrown[1], suitOnTable)
-                    if(cardThrown[1] === suitOnTable){
+                    console.log("cardsOnTable after resetting: ", cardsOnTable)
+                    console.log(cardThrown[cardThrown.length-1] === suitOnTable, cardThrown[cardThrown.length-1], suitOnTable)
+                    if(cardThrown[cardThrown.length-1] === suitOnTable || cardsOnTable.length === 1){
                         gameRoom.save();
                         res.status(200).send({thrown: true});
-                    }else{
+                    }else if(cardThrown[cardThrown.length-1] !== suitOnTable && cardsOnTable.length > 1){
                         //the user that threw the highest card that round has to collect
                         //find the index of the highest card thrown:
                         let index=0, cardValue=0, numberOfCardsOnTable = cardsOnTable.length, collectorDeck, deckSpaceLeft, pickUpAmount;
-                        console.log("cardsOnTable: ", cardsOnTable)
                         for(let i=1; i<numberOfCardsOnTable; i++){
                             let card = cardsOnTable[i];
                             let tempIndex = deckSorted.indexOf(card[0]);
