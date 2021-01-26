@@ -78,30 +78,21 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     this.setVariables();
     this.subscription1$ = this.game.listen("cardThrown").subscribe((data) =>{
       //console.log("recieved: ", data)
-      let room = data.room; let throwersName = data.name; let card = data.card;
+      let throwersName = data.name; let card = data.card;
       this.placeCardOnTable(card);
-      this.auth.fetchUsername().subscribe(
-        res =>{
-          let username = res['collectedUsername'];
+      this.game.getGameInfo().subscribe(
+        res=>{
+          let username = res["name"]
           if(throwersName !== username){
-            this.game.getGameInfo({room: room, name: username}).subscribe(
-              res=>{
-                //console.log(res); 
-                this.displayOtherUsers(res["otherUsers"])
-                this.displayDeck(res["assignedDeck"])
-              },
-              err=>{console.log(err)}
-            )
+            this.displayOtherUsers(res["otherUsers"]);
+            this.displayDeck(res["assignedDeck"]);
+          }else{
+            this.displayDeck(res["assignedDeck"]);
           }
         },
         err=>{console.log(err)}
       )
     });
-  }
-
-  removeCardFromUsersDeck(x: Array<number>){
-    let gcCTX = this.getCanvasContext();
-    gcCTX.fillRect(x[0], this.dyUserCards, this.dwUserCards, this.dhUserCards)
   }
 
   displayDeck(assignedDeck: Array<string>){
@@ -175,33 +166,23 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     const xText2 = dxCardOutline + dwCardOutline;
     gcCTX.fillText("AWAY!", xText2, yText, maxWidthText)
     //the users cards:
-    this.auth.fetchUsername().subscribe(
-      res =>{
-        let username = res['collectedUsername'];
-        this.lobby.findRoom(username).subscribe(
-          res=>{
-            let room = res['data'].room;
-            this.game.joinRoom(room)
-            this.game.getGameInfo({room: room, name: username}).subscribe(
-              res=>{
-                //console.log(res)
-                this.placeCardOnTable(res["cardOnTable"]);
-                this.displayOtherUsers(res["otherUsers"]);
-                this.displayDeck(res["assignedDeck"])
-              },
-              err=>{
-                console.log(err)
-              }
-            )
-          },
-          err=>{console.log(err)}
-        )
-      })
-
-      let gamecanvas = this.getCanvas();
-      gamecanvas.addEventListener("click", (e)=>{
-        this.throwCard(e)
-      })
+    this.game.getGameInfo().subscribe(
+      res=>{
+        //console.log(res)
+        this.placeCardOnTable(res["cardOnTable"]);
+        this.displayOtherUsers(res["otherUsers"]);
+        this.displayDeck(res["assignedDeck"]);
+        this.game.joinRoom(res["roomReq"]);
+      },
+      err=>{
+        console.log(err)
+      }
+    )
+          
+    let gamecanvas = this.getCanvas();
+    gamecanvas.addEventListener("click", (e)=>{
+      this.throwCard(e)
+    })
   }
 
   findClickedCard(clicked: { x: any; y: any; }){
@@ -228,29 +209,21 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     let selection = this.findClickedCard(clicked);
 
     if(selection.selectionMade === true){
-      this.auth.fetchUsername().subscribe(
-        res =>{
-          let username = res['collectedUsername'];
-          this.lobby.findRoom(username).subscribe(
-            res=>{
-              let room = res['data'].room;
-              let data = {room: room, name: username, card: selection.cardSelected}
-              this.game.throwCard(data).subscribe(
-                res=>{
-                  if(res["thrown"] === true){
-                    this.removeCardFromUsersDeck(selection.location);
-                    delete this.dxUserCards[selection.cardSelected]
-                    this.game.onTable(data)
-                  }else{
-                    console.log(res["reason"])
-                  }
-                },
-                err=>{console.log(err)}
-              )
-            },
-            err=>{console.log(err)}
-          )
-        })
+      let data = {card: selection.cardSelected}
+      this.game.throwCard(data).subscribe(
+        res=>{
+          if(res["thrown"] === true){
+            delete this.dxUserCards[selection.cardSelected];
+            data["name"] = res["name"];
+            data["room"] = res["room"];
+
+            this.game.onTable(data);
+          }else{
+            console.log(res["reason"])
+          }
+        },
+        err=>{console.log(err)}
+      )  
     }
   }
 

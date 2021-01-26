@@ -11,7 +11,11 @@
   diamonds = ["AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"];
   spades = ["AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS"];
 
-
+----------------
+  removeCardFromUsersDeck(x: Array<number>){
+    let gcCTX = this.getCanvasContext();
+    gcCTX.fillRect(x[0], this.dyUserCards, this.dwUserCards, this.dhUserCards)
+  }
 
 
 -----above constructor----

@@ -30,8 +30,8 @@ export class GameService {
     return this.http.post(this.shuffleURL, roomInfo, {responseType: 'text'});
   };
 
-  getGameInfo(data: object){
-    return this.http.post(this.getCardsURL, data, {responseType: 'json'})
+  getGameInfo(){
+    return this.http.post(this.getCardsURL, {responseType: 'json'})
   }
 
   getCardImage(card: string){

@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const lobbyModel = require('../models/lobby');
 const gamedataModel = require('../models/gamedata');
+const middleware = require('./middleware');
 
 db_uri = "mongodb+srv://harin_getaway_game24:vWey6Oa4D9wOzDY7@getaway.svfza.mongodb.net/getaway-users?retryWrites=true&w=majority"
 mongoose.connect(db_uri, {useNewUrlParser: true, useUnifiedTopology: true }, error => {
@@ -120,17 +121,9 @@ router.post('/users', (req,res)=>{
     })
 })
 
-router.post('/find', (req,res)=>{
-    let username = req.body.username;
-    lobbyModel.findOne({ users: username }, (err, room)=>{
-        if (err){
-            console.log(err)
-        }else if (room === null){
-            res.status(200).send({data: false})
-        }else{
-            res.status(200).send({data: room});
-        }
-    })
+router.post('/find', middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, (req,res)=>{
+    let data = res.locals.roomInfo;
+    res.status(200).send({data: data});
 })
 
 //route: /lobby-data/delete

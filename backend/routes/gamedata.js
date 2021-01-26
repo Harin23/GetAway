@@ -78,11 +78,13 @@ router.post('/shuffle', (req,res) => {
 
 })
 
-router.post('/getgameinfo', middleware.getRoomInfo, (req,res) => {
-    let roomReq = req.body.room;
+router.post('/getgameinfo', middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, middleware.getProccessedRoomInfo, (req,res) => {
+    let roomReq = res.locals.roomInfo.room;
+    let name = res.locals.name;
     let assignedDeckName = res.locals.assignedDeckName;
     let otherUsers = res.locals.otherUsers;
-    console.log("line 125", otherUsers)
+    //console.log(res.locals.userId)
+    //console.log("line 125", otherUsers)
     gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
         if (err){
             console.log(err)
@@ -91,23 +93,22 @@ router.post('/getgameinfo', middleware.getRoomInfo, (req,res) => {
         }else{
             let cardOnTable = gameRoom["cardOnTable"][0];
             let assignedDeck = gameRoom[assignedDeckName];
-            console.log("requesting user: ", req.body.name, "other users: ", otherUsers)
+            //console.log("requesting user: ", name, "other users: ", otherUsers)
             let keys = [];
             keys = Object.keys(otherUsers);
             for(let i=0; i<keys.length; i++){
                 let deckName = otherUsers[keys[i]];
                 otherUsers[keys[i]] = gameRoom[deckName].length;
             }
-            res.status(200).send({assignedDeck, cardOnTable, otherUsers});
+            res.status(200).send({assignedDeck, cardOnTable, otherUsers, roomReq, name});
         }
     })
 })
 
-router.post('/throwcard', middleware.getRoomInfo, (req,res) => {
-    let roomReq = req.body.room;
-    // let userReq = req.body.name;
+router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, middleware.getProccessedRoomInfo, (req,res) => {
+    let roomReq = res.locals.roomInfo.room
+    let name = res.locals.name;
     let cardThrown = req.body.card;
-    //console.log(roomReq, userReq)
     let requestingUserIndex = res.locals.index;
     let assignedDeckName = res.locals.assignedDeckName;
     gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
@@ -146,7 +147,7 @@ router.post('/throwcard', middleware.getRoomInfo, (req,res) => {
                     //console.log(cardThrown[cardThrown.length-1] === suitOnTable, cardThrown[cardThrown.length-1], suitOnTable)
                     if(cardThrown[cardThrown.length-1] === suitOnTable || cardsOnTable.length === 1){
                         gameRoom.save();
-                        res.status(200).send({thrown: true});
+                        res.status(200).send({thrown: true, name: name, room: roomReq});
                     }else if(cardThrown[cardThrown.length-1] !== suitOnTable && cardsOnTable.length > 1){
                         //the user that threw the highest card that round has to collect
                         //find the index of the highest card thrown:
@@ -178,7 +179,7 @@ router.post('/throwcard', middleware.getRoomInfo, (req,res) => {
                         }
                         gameRoom["turn"] = collector;
                         gameRoom.save();
-                        res.status(200).send({thrown: true});
+                        res.status(200).send({thrown: true, name: name, room: roomReq});
                     }
                 }else{res.status(200).send({thrown: false, reason: "Card not found"})};
             }else{
@@ -188,7 +189,7 @@ router.post('/throwcard', middleware.getRoomInfo, (req,res) => {
     });
 });
 
-router.post("/getcardcount", middleware.getRoomInfo, (req, res)=>{
+router.post("/getcardcount", middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, middleware.getProccessedRoomInfo, (req, res)=>{
     let roomReq = req.body.room;
     gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
         if (err){

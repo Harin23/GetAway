@@ -115,25 +115,16 @@ router.post('/register', (req,res) => {
 });
         
 
-router.get('/username', middleware.verifyToken, (req,res) => {
-    let payloadCollected = res.locals.payloadCollected;
-    userModel.findOne({ _id: payloadCollected}, (err, user) => {
-        if (err){
-            console.log(err)
-        } else if (user === null){
-            res.status(401).send('Username not found')
-        } else {
-            let collectedUsername = user.username;
-            res.status(200).send({collectedUsername})
-        };
-    });
+router.get('/username', middleware.verifyToken, middleware.getUsername, (req,res) => {
+    let collectedUsername = res.locals.name;
+    res.status(200).send({collectedUsername});
 });
 
 router.post('/verify', middleware.verifyToken, (req,res) => {
-    let payloadCollected = res.locals.payloadCollected;
+    let userId = res.locals.userId;
     let user = req.body;
     localUsername = user.username;
-    userModel.findOne({ _id: payloadCollected}, (err, user) => {
+    userModel.findOne({ _id: userId}, (err, user) => {
         if (err){
             console.log(err)
         } else if (user === null){
