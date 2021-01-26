@@ -77,7 +77,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.setVariables();
     this.subscription1$ = this.game.listen("cardThrown").subscribe((data) =>{
-      console.log("recieved: ", data)
+      //console.log("recieved: ", data)
       let room = data.room; let throwersName = data.name; let card = data.card;
       this.placeCardOnTable(card);
       this.auth.fetchUsername().subscribe(
@@ -86,7 +86,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
           if(throwersName !== username){
             this.game.getGameInfo({room: room, name: username}).subscribe(
               res=>{
-                console.log(res); 
+                //console.log(res); 
                 this.displayOtherUsers(res["otherUsers"])
                 this.displayDeck(res["assignedDeck"])
               },

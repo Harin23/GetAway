@@ -14,8 +14,6 @@ mongoose.connect(db_uri, {useNewUrlParser: true, useUnifiedTopology: true }, err
     }
 });
 
-payloadCollected = "";
-
 //use this function to check token once the user is signed in
 function verifyToken(req, res, next){
     if (!req.headers.authorization){
@@ -29,7 +27,8 @@ function verifyToken(req, res, next){
     if (!payload){
         res.status(401).send('Unauthorized request');
     }else{
-        this.payloadCollected = payload['subject'];
+        let payloadCollected = payload['subject'];
+        res.locals.payloadCollected = payloadCollected;
         next();
     }
 }
@@ -135,6 +134,7 @@ router.post('/register', (req,res) => {
         
 
 router.get('/username', verifyToken, (req,res) => {
+    let payloadCollected = res.locals.payloadCollected;
     userModel.findOne({ _id: payloadCollected}, (err, user) => {
         if (err){
             console.log(err)
@@ -148,6 +148,7 @@ router.get('/username', verifyToken, (req,res) => {
 });
 
 router.post('/verify', verifyToken, (req,res) => {
+    let payloadCollected = res.locals.payloadCollected;
     let user = req.body;
     localUsername = user.username;
     userModel.findOne({ _id: payloadCollected}, (err, user) => {
