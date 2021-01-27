@@ -42,7 +42,7 @@ router.post('/join', middleware.verifyToken, middleware.getUsername, (req, res) 
         }else if (room === null){
             res.status(400).send("Room does not exist")
         }else{
-            numberOfUsers = room.totalUsers
+            numberOfUsers = room.users.length
             //console.log(numberOfUsers)
             if(numberOfUsers <=4){
                 room.users.push(name);

@@ -79,13 +79,9 @@ export class GameviewComponent implements OnInit, AfterViewInit {
       this.placeCardOnTable(card);
       this.game.getGameInfo().subscribe(
         res=>{
-          let username = res["name"]
-          if(throwersName !== username){
-            this.displayOtherUsers(res["otherUsers"]);
-            this.displayDeck(res["assignedDeck"]);
-          }else{
-            this.displayDeck(res["assignedDeck"]);
-          }
+          console.log(res)
+          this.displayDeck(res["assignedDeck"]);
+          this.displayOtherUsers(res["otherUsers"]);
         },
         err=>{console.log(err)}
       )
@@ -94,6 +90,8 @@ export class GameviewComponent implements OnInit, AfterViewInit {
 
   displayDeck(assignedDeck: Array<string>){
     let gcCTX = this.getCanvasContext();
+    gcCTX.fillStyle = "lightsteelblue"
+    gcCTX.fillRect(0, this.dyUserCards, this.canvasWidth, this.dhUserCards);
     for(let i=0; i<assignedDeck.length; i++){
       let img = this.game.getCardImage(assignedDeck[i]);
         let dx = this.dwUserCards * i;
@@ -118,7 +116,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     for(let i=0; i<keys.length; i++){
       //console.log(otherUsers[keys[i]], this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
       gcCTX.fillStyle = "lightsteelblue"
-    gcCTX.fillRect(this.OtherUsersNamesX[i],this.otherUsersNamesY[i],this.OtherUsersNamesTextWidth,this.fontSize*2);
+      gcCTX.fillRect(this.OtherUsersNamesX[i],this.otherUsersNamesY[i],this.OtherUsersNamesTextWidth,this.fontSize*2);
 
       gcCTX.font = this.fontSize + "px" + " Arial bolder"
       gcCTX.fillStyle = "black"
