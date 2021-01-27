@@ -30,7 +30,6 @@ io.of('/lobby').on('connection', (socket) => {
     });
 
     socket.on("sendMessage", ({room, message, username}) =>{
-        //console.log(room, message, username)
         io.of('lobby').to(room).emit('message', `${username}:${message}`);
         //console.log(socket.disconnected);
     });

@@ -11,6 +11,7 @@ export class AuthService {
   private _loginUrl = "http://localhost:3000/login";
   private _returnUsernameUrl = "http://localhost:3000/login/username";
   private _verifyUrl = "http://localhost:3000/login/verify";
+  private userInfoURL = "http://localhost:3000/login/userinfo";
 
   user = { username: "" };
 
@@ -48,6 +49,10 @@ export class AuthService {
   verifyCredentials(){
     this.user.username = localStorage.getItem('username');
     return this.http.post(this._verifyUrl, this.user);
+  }
+
+  getUserInfo(){
+    return this.http.post(this.userInfoURL, {responseType: 'json'})
   }
 
 }

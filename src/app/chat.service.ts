@@ -27,29 +27,11 @@ export class ChatService {
     })
   };
 
-  emitMessage(data){
+  emitMessage(data: object){
     this.socket.emit("sendMessage", data);
   };
 
   getSocket(){
     return this.socket;
   }
-
-  // onTable(data){
-  //   console.log(this.socket, data)
-  //   this.socket.emit("cardOnTable", data);
-  // };
-
 }
-
-/*     
-
-return new Observable((subscriber) =>{
-      this.socket.on(event, (data) =>{
-        subscriber.next(data);
-      });
-    });
-    
-    
-    
-*/

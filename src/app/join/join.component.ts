@@ -13,29 +13,30 @@ import { LobbyService } from '../lobby.service';
 export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
 
   username: string;
-  clicked = false;
   messageErr = false;
   message: string;
   subscription1$: Subscription;
   constructor(
     private auth: AuthService,
-    private app: AppComponent,
-    private chat: ChatService,
-    private lobby: LobbyService
+    private chat: ChatService
   ) { }
 
   ngOnInit(): void {
-    //console.log("on init executed")
-    this.validate();
-    this.subscription1$ = this.chat.listen("message").subscribe((data) => this.recievedMessage(data));
-    //console.log(this.subscription1$);
-    //window.onbeforeunload = () => this.ngOnDestroy();
+    this.auth.getUserInfo().subscribe(
+      res=>{
+        let room = res["room"];
+        this.username = res["name"]
+        this.chat.joinRoom(room);
+      },
+      err=>{console.log(err)}
+    );
   }
 
   ngAfterViewInit(): void{
-    //console.log("view init executed")
+    this.subscription1$ = this.chat.listen("message").subscribe((data) => this.recievedMessage(data));
+
     const messagebar = document.getElementById("message");
-    //console.log(messagebar)
+
     messagebar.addEventListener("keypress", (e) => {
       if (e.key === "Enter"){
         console.log("Enter key pressed")
@@ -45,38 +46,10 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void{
-    //console.log("on destroy executed")
     let room = sessionStorage.getItem('room')
     this.chat.emitMessage({room: room, message: "Is no longer active and cannot see any of the messages.", username: this.username});
     this.subscription1$.unsubscribe();
-   //console.log(this.subscription1$);
   }
-
-
-  listenForMessages(){
-    sessionStorage.setItem("listening", "true")
-  }
-
-  validate(){ 
-    if (this.auth.userDataPresent()){
-      this.auth.verifyCredentials().subscribe(
-          res =>{
-            if (res === true){
-              this.username = localStorage.getItem('username');
-            }else{
-              this.app.logout();
-            }
-          },
-          err =>{
-            console.log(err);
-            this.app.logout();
-            alert("Error: You have been logged out.")
-          }
-        )
-    }else{
-      this.app.logout();
-    }
-  };
 
   sendMessage(){ 
     if(this.message === undefined){
@@ -86,40 +59,23 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
     }else{
       this.messageErr = false;
       this.message = " " + this.message
-      if (this.auth.userDataPresent()){
-        this.auth.verifyCredentials().subscribe(
-          res =>{
-            if (res === true){
-              this.lobby.findRoom(localStorage.getItem('username')).subscribe(
-                res=>{
-                  var data = res['data'];
-                  this.chat.emitMessage({room: data.room, message: this.message, username: this.username});
-                  this.message = null;
-                },
-                err=>{console.log(err)}
-              )
-            }else{
-              this.app.logout()
-            }
-          },
-          err =>{
-            console.log(err);
-            this.app.logout();
-          }
-        )
-      }else{
-        this.app.logout();
-      }
+      this.auth.getUserInfo().subscribe(
+        res=>{
+          console.log(res)
+          let room=res["room"], name=res["name"];
+          this.chat.emitMessage({room: room, message: this.message, username: name});
+          this.message = null;
+        },
+        err=>{console.log(err)}
+      )
     };
   };
 
   recievedMessage(data: any): void {
-    //console.log("RM called")
     let display = document.getElementById('displayMessages');
     let span = document.createElement("span");
     span.classList.add("d-block", "rounded-pill", "p-1", "my-1", "bg-info", "text-dark")
     span.innerText = data;
-    //console.log(span)
     display.appendChild(span);
   };
 }

@@ -141,4 +141,9 @@ router.post('/verify', middleware.verifyToken, (req,res) => {
     });
 });
 
+router.post('/userinfo', middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, (req,res) => {
+    let userInfo = {name: res.locals.name, room: res.locals.roomInfo.room};
+    res.status(200).send(userInfo)
+});
+
 module.exports = router
