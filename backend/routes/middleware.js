@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const lobbyModel = require('../models/lobby');
 const userModel = require('../models/user');
+const gamedataModel = require('../models/gamedata')
 
 db_uri = "mongodb+srv://harin_getaway_game24:vWey6Oa4D9wOzDY7@getaway.svfza.mongodb.net/getaway-users?retryWrites=true&w=majority"
 mongoose.connect(db_uri, {useNewUrlParser: true, useUnifiedTopology: true }, error => {

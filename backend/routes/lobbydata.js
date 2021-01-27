@@ -61,14 +61,14 @@ router.post('/leave', middleware.verifyToken, middleware.getUsername, middleware
 })
 
 router.get('/update', (req,res) => {
-    lobbyModel.find({}, {room:1, _id:0}, (err, room) =>{
+    lobbyModel.find({}, {room:1, _id:0}, (err, rooms) =>{
         if (err){
             console.log(err)
             res.status(500).send({err})
-        }else if (room === null){
+        }else if (rooms === null){
             res.status(200).send("Not found")
         }else{
-            res.status(200).send({room})
+            res.status(200).send({rooms})
         }
     })
 })
@@ -78,15 +78,18 @@ router.post('/users', middleware.verifyToken, middleware.getUsername, middleware
     res.status(200).send({users});
 })
 
-router.post('/find', middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, (req,res)=>{
-    let data = res.locals.roomInfo;
-    res.status(200).send({data: data});
-})
-
-//route: /lobby-data/delete
-router.post('/delete', (req, res) =>{
-    let roomInfo = req.body;
-    lobbyModel.deleteOne({ room: roomInfo });
+router.post('/deleteall',  (req, res) =>{  
+    lobbyModel.deleteMany({}, (err, result)=>{
+        if (err){
+            console.log(err)
+        }
+    });
+    gamedataModel.deleteMany({}, (err, result)=>{
+        if (err){
+            console.log(err)
+        }
+    });
+    res.status(200).send({message: "cleared"})
 })
 
 module.exports = router

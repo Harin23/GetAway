@@ -132,7 +132,7 @@ export class HostComponent implements OnInit {
     document.getElementById("lobbyListParent").innerHTML="";
     this.lobby.refreshList().subscribe(
       res =>{
-        res['room'].forEach(element => {
+        res['rooms'].forEach(element => {
           var liTag = document.createElement("LI");
           liTag.classList.add("list-group-item", "bg-transparent");
           liTag.innerText = element.room;
@@ -140,6 +140,13 @@ export class HostComponent implements OnInit {
         });
       },
       err => {console.log(err)}
+    )
+  }
+
+  clearLobby(){
+    this.lobby.clearLobby().subscribe(
+      res=>{console.log(res)},
+      err=>{console.log(err)}
     )
   }
 }
