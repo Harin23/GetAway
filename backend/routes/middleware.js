@@ -79,15 +79,16 @@ function leaveRoom(req, res, next){
                 room.save();
                 res.status(200).send({name: user, room: room.room})
             }else{
+                let roomName = room.room;
                 room.remove();
-                gamedataModel.findOne({ room: room }, (err, roomVerify) => {
+                gamedataModel.findOne({ room: roomName }, (err, roomGame) => {
                     if (err){
                         console.log(err)
-                    }else if (roomVerify === null){
-                        res.status(200).send({name: user, room: room.room})
+                    }else if (roomGame === null){
+                        res.status(200).send({name: user, room: roomName})
                     }else{
-                        roomVerify.remove();
-                        res.status(200).send({name: user, room: room.room})
+                        roomGame.remove();
+                        res.status(200).send({name: user, room: roomName})
                     }
                 })
             }
