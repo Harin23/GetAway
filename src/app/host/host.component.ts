@@ -28,15 +28,15 @@ export class HostComponent implements OnInit {
 
   ngOnInit(){
     this.refresh();
-    this.lobbyListListen();
+    this.selectRoom();
     this.clearErrors();
   };
 
-  joinedRoom(room: string, username: string){
+  joinedRoom(room: string, name: string){
     this.chat.joinRoom(room);
     sessionStorage.setItem('room', room)
     this.app.enableRoomNav(room);
-    this.chat.emitMessage({room: room, message:" has entered the room", username: username})
+    this.chat.emitMessage({room: room, message:" has entered the room", username: name})
     this.router.navigateByUrl(`/join/${room}`)
   }
 
@@ -59,25 +59,18 @@ export class HostComponent implements OnInit {
       liTag.innerText = newRoomName;
       (<HTMLInputElement>document.getElementById("newRoom")).value = "";
       document.getElementById("lobbyListParent").appendChild(liTag);
-      this.auth.fetchUsername().subscribe(
-        res =>{
-          let username = res['collectedUsername'];
-          this.lobby.newRoom(newRoomName, username).subscribe(
-            res => {
-              this.shuffleCards(newRoomName)
-              this.joinedRoom(newRoomName, username);
-            },
-            err => {console.log(err)}
-          )
+      this.lobby.newRoom(newRoomName).subscribe(
+        res => {
+          let name=res["name"]
+          this.shuffleCards(newRoomName)
+          this.joinedRoom(newRoomName, name);
         },
-        err => {
-          console.log(err)
-        }
+        err => {console.log(err)}
       )
     };
   };
 
-  lobbyListListen(){
+  selectRoom(){
       const lobbyList = document.getElementById("lobbyListParent");
       lobbyList.addEventListener("click", (e)=>{
         this.DNEerror = false;
@@ -87,7 +80,7 @@ export class HostComponent implements OnInit {
       }, false);
     }; 
 
-  LobbyExists(name){
+  LobbyExists(name: string){
     let exists = false;
     const lobbyList = document.getElementById("lobbyListParent");
     for(let i=0; i<lobbyList.childElementCount; i++){
@@ -103,12 +96,11 @@ export class HostComponent implements OnInit {
     let room = (<HTMLInputElement>document.getElementById('existingRoom')).value;
     let exists = this.LobbyExists(room);
     if(exists === true){
-      this.auth.fetchUsername().subscribe(
-        res =>{
-          let username = res['collectedUsername'];
-          this.lobby.joinRoom(room, username).subscribe(
+          this.lobby.joinRoom(room).subscribe(
             res =>{
-              this.joinedRoom(room, username)
+              console.log(res)
+              let name = res["name"]
+              this.joinedRoom(room, name)
             },
             err =>{
               console.log(err)
@@ -118,8 +110,6 @@ export class HostComponent implements OnInit {
               this.clearErrors();
             }
           )
-        }
-      )
     }else{
       this.DNEerror = true;
       (<HTMLInputElement>document.getElementById('existingRoom')).value = "";

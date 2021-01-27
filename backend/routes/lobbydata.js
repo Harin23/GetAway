@@ -20,22 +20,23 @@ router.post('/', (req,res) =>{
 })
 
 //route:/lobby-data/create
-router.post('/create', (req, res) => {
+router.post('/create', middleware.verifyToken, middleware.getUsername, (req, res) => {
     let roomInfo = req.body;
-    //console.log(roomInfo)
+    let name = res.locals.name;
+    roomInfo["users"] = name;
     roomInfo['totalUsers'] = 1;
-   // console.log(roomInfo)
     let room = new lobbyModel(roomInfo);
     room.save();
     let gameInfo = {room: roomInfo.room, cardsShuffled: false, cardOnTable: ["AS"]}
     let gameRoom = new gamedataModel(gameInfo);
     gameRoom.save();
-    res.status(200).send("lobby created")
+    res.status(200).send({name: name})
 })
 
 //route:/lobby-data/join
-router.post('/join', (req, res) => {
+router.post('/join', middleware.verifyToken, middleware.getUsername, (req, res) => {
     let roomInfo = req.body;
+    let name = res.locals.name;
     lobbyModel.findOne({ room: roomInfo.room }, (err, room) => {
         if (err){
             console.log(err)
@@ -45,10 +46,10 @@ router.post('/join', (req, res) => {
             numberOfUsers = room.totalUsers
             //console.log(numberOfUsers)
             if(numberOfUsers <=4){
-                room.users.push(roomInfo.users);
+                room.users.push(name);
                 room.totalUsers = numberOfUsers + 1; 
                 room.save();
-                res.status(200).send({room});
+                res.status(200).send({name: name});
             }else{
                 res.status(400).send("Room full")
             }

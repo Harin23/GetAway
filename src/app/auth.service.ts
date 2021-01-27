@@ -9,7 +9,7 @@ export class AuthService {
 
   private _registerUrl = "http://localhost:3000/login/register";
   private _loginUrl = "http://localhost:3000/login";
-  private _returnUsernameUrl = "http://localhost:3000/login/username";
+  private returnUsernameUrl = "http://localhost:3000/login/username";
   private _verifyUrl = "http://localhost:3000/login/verify";
   private userInfoURL = "http://localhost:3000/login/userinfo";
 
@@ -37,7 +37,7 @@ export class AuthService {
   } 
 
   fetchUsername(){
-    return this.http.get(this._returnUsernameUrl)
+    return this.http.get(this.returnUsernameUrl)
   }
   
   logOut(){

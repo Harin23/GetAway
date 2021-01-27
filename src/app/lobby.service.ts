@@ -18,14 +18,14 @@ export class LobbyService {
     private http: HttpClient
   ) { }
 
-  newRoom(room: string, username: string){
+  newRoom(room: string){
     //console.log('request sent')
-    let roomInfo = {room: room, users: username}
-    return  this.http.post(this.lobbyCreateURL, roomInfo, {responseType: 'text'});
+    let roomInfo = {room: room}
+    return  this.http.post(this.lobbyCreateURL, roomInfo, {responseType: 'json'});
   };
 
-  joinRoom(room: string, username: string){
-    let roomInfo = {room: room, users: username}
+  joinRoom(room: string){
+    let roomInfo = {room: room}
     return this.http.post(this.lobbyJoinURL, roomInfo, {responseType: 'json'});
   };
 
