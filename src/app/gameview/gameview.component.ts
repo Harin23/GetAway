@@ -1,9 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
-import { AuthService } from '../auth.service';
 import { GameService } from '../game.service';
-import { LobbyService } from '../lobby.service';
 
 @Component({
   selector: 'app-gameview',
@@ -25,8 +23,6 @@ export class GameviewComponent implements OnInit, AfterViewInit {
 
   constructor(
     private game: GameService,
-    private auth: AuthService,
-    private lobby: LobbyService,
     private app: AppComponent
   ) { }
 
@@ -75,6 +71,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.app.UserAlreadySignedIn();
     this.setVariables();
     this.subscription1$ = this.game.listen("cardThrown").subscribe((data) =>{
       //console.log("recieved: ", data)

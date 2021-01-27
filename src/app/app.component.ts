@@ -14,7 +14,7 @@ export class AppComponent {
   title = 'GetAway';
 
   constructor(
-    private _auth: AuthService,
+    private auth: AuthService,
     private router: Router,
     private lobby: LobbyService,
     private chat: ChatService, 
@@ -28,94 +28,46 @@ export class AppComponent {
   usernameDisplay = "";
 
   UserAlreadySignedIn(){
-    if (this._auth.userDataPresent()){
-      this._auth.verifyCredentials().subscribe(
+    console.log(this.auth.userDataPresent())
+    if (this.auth.userDataPresent()){
+      this.auth.verifyCredentials().subscribe(
         res =>{
-          if (res === true){
-            this.displayUsername();
-            this.lobby.findRoom(localStorage.getItem('username')).subscribe(
-              res=>{
-                //console.log(res['data'])
-                var data = res['data'];
-                if(data === false){
-                  this.disableRoomNav()
-                }else{
-                  this.enableRoomNav(data.room)
-                }
-              },
-              err=>{console.log(err)}
-            )
+          let userInRoom = res["exists"]
+          let username = res["name"]
+          localStorage.setItem("username", username);
+          this.displayUsername();
+          if(userInRoom === false){
+            this.disableRoomNav()
           }else{
-            this.removeLoginRegister = this._auth.logOut();
+            let room = res["room"]
+            this.enableRoomNav(room)
           }
         },
         err =>{
           console.log(err);
-          this.removeLoginRegister = this._auth.logOut();
+          this.removeLoginRegister = this.auth.logOut();
         }
       )
     }else{
-      this.removeLoginRegister = this._auth.logOut();
+      console.log("log out")
+      this.removeLoginRegister = this.auth.logOut();
     }
   };
 
   displayUsername(){
+    let name = localStorage.getItem("username")
     this.removeLoginRegister = true;
-    this.usernameDisplay = localStorage.getItem('username');
-  };
-
-  logout(){
-    if (this._auth.userDataPresent()){
-      console.log("1"+true)
-      this._auth.verifyCredentials().subscribe(
-        res =>{
-          if (res === true){
-            console.log("2"+true)
-            var username = localStorage.getItem('username');
-            this.lobby.findRoom(username).subscribe(
-              res=>{
-                var data = res['data'];
-                this.lobby.leaveRoom(data.room, username).subscribe(
-                  res=>{
-                    console.log(res)
-                    this.leftTheChat(data.room, username);
-                    this.disableRoomNav();
-                  },
-                  err=>{console.log(err)}
-                )
-                this.removeLoginRegister = this._auth.logOut();
-              },
-              err=>{
-                console.log(err)
-                this.removeLoginRegister = this._auth.logOut();
-              }
-            )
-          }
-        },
-        err=>{
-          console.log(err)
-          this.removeLoginRegister = this._auth.logOut();
-        }
-      )
-    }else{
-      this.removeLoginRegister = this._auth.logOut();
-    }
-
+    this.usernameDisplay = name;
   };
 
   roomUsers(){
-    let roomInfo = sessionStorage.getItem('room');
-    //console.log(roomInfo)
     document.getElementById("users").innerHTML="";
-    this.lobby.fetchUsers(roomInfo).subscribe(
+    this.lobby.fetchUsers().subscribe(
       res=>{
-        //console.log(res)
-        let i = 0;
         res['users'].forEach((element: string) => {
           var liTag = document.createElement("LI");
           liTag.innerText = element;
           document.getElementById("users").appendChild(liTag);
-          //console.log(++i);
         })
       },
       err=>{console.log(err)}
@@ -149,25 +101,6 @@ export class AppComponent {
     lobbyNav.classList.remove("disabled");
   }
 
-  leave(){
-    let room = sessionStorage.getItem('room')
-    this.disableRoomNav();
-    this._auth.fetchUsername().subscribe(
-      res=>{
-        let username = res['collectedUsername'];
-        this.lobby.leaveRoom(room, username).subscribe(
-          res=>{
-            //console.log(res)
-            this.leftTheChat(room, username)
-          },
-          err=>{console.log(err)}
-        )
-      },
-      err=>{console.log(err)}
-    )
-    this.router.navigate(['/host'])
-  };
-
   leftTheChat(room: string, username: string){
     this.chat.emitMessage({room: room, message: " has left the room", username: username})
   };
@@ -176,4 +109,28 @@ export class AppComponent {
     var element = document.getElementById("navbarElement");
     return element.getBoundingClientRect();
   }
+
+  leave(){
+    this.disableRoomNav();
+    if (this.auth.userDataPresent()){
+      this.lobby.leaveRoom().subscribe(
+        res=>{
+          console.log(res)
+          let username = res["name"];
+          let room = res["room"];
+          this.leftTheChat(room, username);
+          this.disableRoomNav();
+        },
+        err=>{console.log(err)}
+      )
+    }else{
+      this.removeLoginRegister = this.auth.logOut();
+    }
+    this.router.navigate(['/host'])
+  };
+
+  logout(){
+    this.leave();
+    this.removeLoginRegister = this.auth.logOut();
+  };
 }

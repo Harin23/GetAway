@@ -51,11 +51,46 @@ function getRoomInfo(req, res, next){
         if (err){
             console.log(err)
         }else if (room === null){
-            res.status(200).send({data: false})
+            res.status(200).send({exists: false, name: username})
         }else{
             res.locals.roomInfo = room;
             next();
         }
+    })
+}
+
+function leaveRoom(req, res, next){
+    let user = res.locals.name;
+    lobbyModel.findOne({ users: user }, (err, room) => {
+        if (err){
+            console.log(err)
+        }else if (room === null){
+            res.status(400).send("Room does not exist")
+        }else{
+            var users = room.users;
+            if(users.length > 1){
+                for (var i=users.length-1; i>=0; i--) {
+                    if (users[i] === user) {
+                    users.splice(i, 1);
+                    }
+                }
+                room.users = users;
+                room.save();
+                res.status(200).send({name: user, room: room.room})
+            }else{
+                room.remove();
+                gamedataModel.findOne({ room: room }, (err, roomVerify) => {
+                    if (err){
+                        console.log(err)
+                    }else if (roomVerify === null){
+                        res.status(200).send({name: user, room: room.room})
+                    }else{
+                        roomVerify.remove();
+                        res.status(200).send({name: user, room: room.room})
+                    }
+                })
+            }
+        } 
     })
 }
 
@@ -87,5 +122,6 @@ module.exports={
     verifyToken : verifyToken,
     getProccessedRoomInfo : getProccessedRoomInfo,
     getUsername : getUsername,
-    getRoomInfo : getRoomInfo
+    getRoomInfo : getRoomInfo,
+    leaveRoom : leaveRoom
 }

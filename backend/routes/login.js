@@ -113,32 +113,11 @@ router.post('/register', (req,res) => {
     };
 
 });
-        
 
-router.get('/username', middleware.verifyToken, middleware.getUsername, (req,res) => {
-    let collectedUsername = res.locals.name;
-    res.status(200).send({collectedUsername});
-});
-
-router.post('/verify', middleware.verifyToken, (req,res) => {
-    let userId = res.locals.userId;
-    let user = req.body;
-    localUsername = user.username;
-    userModel.findOne({ _id: userId}, (err, user) => {
-        if (err){
-            console.log(err)
-        } else if (user === null){
-            res.status(401).send('Username not found')
-        } else {
-            let collectedUsername = user.username;
-            if (localUsername === collectedUsername){
-                res.status(200).send(true)
-            }else{
-                res.status(401).send(false)
-            }
-            
-        };
-    });
+router.post('/verify', middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, (req,res) => {
+    let name = res.locals.name
+    let room = res.locals.roomInfo.name;
+    res.status(200).send({name: name, exists: true, room: room})
 });
 
 router.post('/userinfo', middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, (req,res) => {

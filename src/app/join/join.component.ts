@@ -18,10 +18,12 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
   subscription1$: Subscription;
   constructor(
     private auth: AuthService,
-    private chat: ChatService
+    private chat: ChatService,
+    private app: AppComponent
   ) { }
 
   ngOnInit(): void {
+    this.app.UserAlreadySignedIn();
     this.auth.getUserInfo().subscribe(
       res=>{
         let room = res["room"];

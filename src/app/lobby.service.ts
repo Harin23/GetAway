@@ -33,13 +33,12 @@ export class LobbyService {
     return this.http.get(this.lobbyUpdateURL, {responseType: 'json'});
   };
 
-  fetchUsers(roomInfo: string){
-    return this.http.post(this.fetchUsersURL, {room: roomInfo}, {responseType: 'json'})
+  fetchUsers(){
+    return this.http.post(this.fetchUsersURL, {responseType: 'json'})
   };
 
-  leaveRoom(room: string, username: string){
-    let roomInfo = {room: room, users: username}
-    return this.http.post(this.leaveRoomURL, roomInfo, {responseType: 'json'});
+  leaveRoom(){
+    return this.http.post(this.leaveRoomURL, {responseType: 'json'});
   };
 
   findRoom(username: string){

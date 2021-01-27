@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { AppComponent } from '../app.component';
 import { Router } from '@angular/router';
 import { ChatService } from '../chat.service';
-import { AuthService } from '../auth.service';
 import { LobbyService } from '../lobby.service';
 import { GameService } from '../game.service';
 
@@ -20,13 +19,13 @@ export class HostComponent implements OnInit {
   constructor(
     private app: AppComponent,
     private router: Router,
-    private auth: AuthService,
     private chat: ChatService,
     private lobby: LobbyService,
     private game: GameService
   ) { }
 
   ngOnInit(){
+    this.app.UserAlreadySignedIn();
     this.refresh();
     this.selectRoom();
     this.clearErrors();

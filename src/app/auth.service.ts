@@ -7,10 +7,9 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
 
-  private _registerUrl = "http://localhost:3000/login/register";
-  private _loginUrl = "http://localhost:3000/login";
-  private returnUsernameUrl = "http://localhost:3000/login/username";
-  private _verifyUrl = "http://localhost:3000/login/verify";
+  private registerUrl = "http://localhost:3000/login/register";
+  private loginUrl = "http://localhost:3000/login";
+  private verifyUrl = "http://localhost:3000/login/verify";
   private userInfoURL = "http://localhost:3000/login/userinfo";
 
   user = { username: "" };
@@ -21,11 +20,11 @@ export class AuthService {
   ) { }
 
   registerUser(user: any){
-    return this.http.post(this._registerUrl, user, {responseType: 'json'});
+    return this.http.post(this.registerUrl, user, {responseType: 'json'});
   }
 
   loginUser(user: any){
-    return this.http.post(this._loginUrl, user, {responseType: 'json'});
+    return this.http.post(this.loginUrl, user, {responseType: 'json'});
   }
 
   userDataPresent(){
@@ -35,10 +34,6 @@ export class AuthService {
   getToken(){
     return localStorage.getItem('token');
   } 
-
-  fetchUsername(){
-    return this.http.get(this.returnUsernameUrl)
-  }
   
   logOut(){
     localStorage.clear();
@@ -47,8 +42,7 @@ export class AuthService {
   }
 
   verifyCredentials(){
-    this.user.username = localStorage.getItem('username');
-    return this.http.post(this._verifyUrl, this.user);
+    return this.http.post(this.verifyUrl, {responseType: 'json'});
   }
 
   getUserInfo(){
