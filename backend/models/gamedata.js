@@ -9,6 +9,7 @@ const gamedataSchema = new mongoose.Schema({
     deck2: [String],
     deck3: [String],
     // deckAssignments:{deck0: String, deck1: String, deck2: String, deck3: String},
-    turn: Number
+    turn: Number,
+    stillPlaying:[Number]
 });
 module.exports = mongoose.model('gamedata', gamedataSchema, 'gamedata');

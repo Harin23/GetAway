@@ -97,7 +97,6 @@ function leaveRoom(req, res, next){
 }
 
 function getProccessedRoomInfo(req, res, next){
-    //otherUsers={}; //without clearing here, this obj stores info from previous req causing error
     let userReq = res.locals.name;
     let users = res.locals.roomInfo.users;
     if(users.length >14){
@@ -107,10 +106,8 @@ function getProccessedRoomInfo(req, res, next){
         let assignedDeckName = "deck" + index;
         let otherUsers =  {};
         for(let i=0; i<users.length; i++){
-            //console.log(index, i !== index)
             if(i !== index){
                 otherUsers[users[i]] = "deck" + i;
-                //console.log(i, otherUsers, users[i])
             }
         }
         res.locals.assignedDeckName = assignedDeckName;

@@ -75,11 +75,10 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     this.setVariables();
     this.subscription1$ = this.game.listen("cardThrown").subscribe((data) =>{
       //console.log("recieved: ", data)
-      let throwersName = data.name; let card = data.card;
+      let card = data.card;
       this.placeCardOnTable(card);
       this.game.getGameInfo().subscribe(
         res=>{
-          console.log(res)
           this.displayDeck(res["assignedDeck"]);
           this.displayOtherUsers(res["otherUsers"]);
         },
@@ -209,9 +208,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
         res=>{
           if(res["thrown"] === true){
             delete this.dxUserCards[selection.cardSelected];
-            data["name"] = res["name"];
             data["room"] = res["room"];
-
             this.game.onTable(data);
           }else{
             console.log(res["reason"])
