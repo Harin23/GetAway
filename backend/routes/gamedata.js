@@ -21,55 +21,56 @@ router.post('/shuffle', (req,res) => {
         }else if (room === null){
             res.status(400).send("Room does not exist")
         }else{
-            let deck = 
-            ["AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS",
-            "AC", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "JC", "QC", "KC",
-            "AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH",
-            "AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"];
-            room.deck0 = [];
-            room.deck1 = [];
-            room.deck2 = [];
-            room.deck3 = [];
-            room.stillPlaying = [0, 1, 2, 3];
-            room.save();
+            function shuffleCards(){
+                return new Promise((resolve, reject)=>{
+                    let deck = 
+                    ["AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS",
+                    "AC", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "JC", "QC", "KC",
+                    "AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH",
+                    "AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"];
+                    let hold, newPos;
+                    for (var i=deck.length-1; i>0; i--){
+                        hold = deck[i];
+                        newPos = Math.floor(Math.random() * (i+1))
+                        deck[i] = deck[newPos]
+                        deck[newPos] = hold;
+                    }
+                    if(i === 0){
+                        resolve({deck: deck})
+                    }
+                })
+            }
+            
             let shuffled = room.cardsShuffled;
             if (shuffled === false){
                 //shuffle requestingUserCards
-                let hold, newPos;
-                for (var i=deck.length-1; i>0; i--){
-                    hold = deck[i];
-                    newPos = Math.floor(Math.random() * (i+1))
-                    deck[i] = deck[newPos]
-                    deck[newPos] = hold;
-                }
-                cb();
-                function cb(){
-                    if (i>0 ){
-                        setTimeout(function(){cb()}, 5);
-                    }else{
-                        let turn = 0, index=0;
-                        index = deck.indexOf("AS");
-                        if(index>=0 && index<=12){
-                            turn = 0;
-                        }else if(index>=13 && index<=25){
-                            turn = 1;
-                        }else if(index>=26 && index<=38){
-                            turn = 2;
-                        }else if(index>=39 && index<=51){
-                            turn = 3;
-                        }
-                        room.deck0 = deck.slice(0,13);
-                        room.deck1 = deck.slice(13,26);
-                        room.deck2 = deck.slice(26,39);
-                        room.deck3 = deck.slice(39,52);
-                        room.cardsShuffled = true;
-                        room.turn = turn;
-                        res.status(200).send("Cards Shuffled")
+                shuffleCards().then((shuffledDeck) =>{
+                    let turn = 0, index=0, deck = shuffledDeck.deck;
+                    index = deck.indexOf("AS");
+                    if(index>=0 && index<=12){
+                        turn = 0;
+                    }else if(index>=13 && index<=25){
+                        turn = 1;
+                    }else if(index>=26 && index<=38){
+                        turn = 2;
+                    }else if(index>=39 && index<=51){
+                        turn = 3;
                     }
-                }
+                    room.deck0 = deck.slice(0,13);
+                    room.deck1 = deck.slice(13,26);
+                    room.deck2 = deck.slice(26,39);
+                    room.deck3 = deck.slice(39,52);
+                    room.cardsShuffled = true;
+                    room.turn = turn;
+                    room.stillPlaying = [0, 1, 2, 3];
+                    room.save()
+                    res.status(200).send("Cards Shuffled")
+                }).catch((err)=>{
+                    console.log(err)
+                })
+                        
             }else{
-                console.log("game already started")
-                res.status(200).send("requestingUserCards already shuffled")
+                res.status(200).send("Cards already shuffled")
             }
         }
     })

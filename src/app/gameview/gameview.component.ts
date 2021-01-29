@@ -206,6 +206,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
       let data = {card: selection.cardSelected}
       this.game.throwCard(data).subscribe(
         res=>{
+          console.log(res)
           if(res["thrown"] === true){
             delete this.dxUserCards[selection.cardSelected];
             data["room"] = res["room"];
