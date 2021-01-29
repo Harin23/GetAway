@@ -34,8 +34,8 @@ io.of('/lobby').on('connection', (socket) => {
         //console.log(socket.disconnected);
     });
 
-    socket.on("throwCard", ({card, room}) => {
-        let data = {card: card}
+    socket.on("throwCard", ({card, room, gameover}) => {
+        let data = {card: card, gameover: gameover, room: room}
         io.of('lobby').to(room).emit("cardThrown", data);
     }); 
 

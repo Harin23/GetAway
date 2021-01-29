@@ -236,4 +236,30 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
     });
 });
 
+router.post('/gameover', middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, (req,res) => {
+    let roomReq = res.locals.roomInfo
+    gamedataModel.findOne({ room: roomReq.room}, (err, gameRoom) =>{
+        if (err){
+            console.log(err)
+        }else if (gameRoom === null){
+            res.status(400).send("Room does not exist")
+        }else{
+            let loserIndex=null;
+            for(let i=0; i<4; i++){
+                let deck = "deck"+i;
+                if(gameRoom[deck].length>0){
+                    loserIndex = i;
+                    break;
+                }
+            }
+            if(loserIndex === null){
+                res.status(400).send("Unable to find loser")
+            }else{
+                let loser = roomReq.users[loserIndex];
+                res.status(200).send({loser: loser});
+            }
+        }
+    })
+})
+
 module.exports = router

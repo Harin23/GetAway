@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
 import { GameService } from '../game.service';
@@ -23,6 +24,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
 
   constructor(
     private game: GameService,
+    private router: Router,
     private app: AppComponent
   ) { }
 
@@ -75,15 +77,20 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     this.setVariables();
     this.subscription1$ = this.game.listen("cardThrown").subscribe((data) =>{
       //console.log("recieved: ", data)
-      let card = data.card;
+      let card = data.card, gameover = data.gameover;
       this.placeCardOnTable(card);
-      this.game.getGameInfo().subscribe(
-        res=>{
-          this.displayDeck(res["assignedDeck"]);
-          this.displayOtherUsers(res["otherUsers"]);
-        },
-        err=>{console.log(err)}
-      )
+      if(gameover === true){
+        let room = data.room;
+        this.router.navigateByUrl(`/join/${room}`)
+      }else{
+        this.game.getGameInfo().subscribe(
+          res=>{
+            this.displayDeck(res["assignedDeck"]);
+            this.displayOtherUsers(res["otherUsers"]);
+          },
+          err=>{console.log(err)}
+        )
+      }
     });
   }
 
@@ -210,6 +217,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
           if(res["thrown"] === true){
             delete this.dxUserCards[selection.cardSelected];
             data["room"] = res["room"];
+            data["gameover"] = res["gameover"];
             this.game.onTable(data);
           }else{
             console.log(res["reason"])
