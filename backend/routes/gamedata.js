@@ -112,24 +112,6 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
             res.status(400).send("Room does not exist")
         }else{
             let turn = gameRoom["turn"];
-            function updateTurn(requestingUserCards, stillPlaying, stillPlayingIndex){
-                let gameover = false;
-                let tempTurn =0;
-                let cardsLeft = requestingUserCards.length;
-                if(stillPlayingIndex === stillPlaying.length-1){
-                    tempTurn = stillPlaying[0];
-                }else{
-                    tempTurn = stillPlaying[stillPlayingIndex+1];
-                };
-                if(cardsLeft === 0){
-                    stillPlaying = updateArray(stillPlaying, stillPlayingIndex)
-                    gameRoom.stillPlaying = stillPlaying;
-                    if(stillPlaying.length === 1){
-                        gameover = true;
-                    }
-                }
-                return [tempTurn, gameover]
-            }
             function updateArray(someArray, removeIndex){
                 let temp = someArray.slice(0,removeIndex);
                 temp.push(...someArray.slice(removeIndex+1))
@@ -141,6 +123,63 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
             }
             function getCardSuit(card){
                 return card.slice(card.length-1)
+            }
+            function updateCardsOnTable(cardsOnTable){
+                if(cardThrown !== "AS" && cardsOnTable.length+1<=4){
+                    cardsOnTable.unshift(cardThrown);
+                }else if(cardThrown !== "AS" && cardsOnTable.length+1>4){
+                    cardsOnTable = [];
+                    cardsOnTable.push(cardThrown)
+                }
+                return cardsOnTable;
+            }
+            function findTheHighestCardThrower(numberOfCardsOnTable, stillPlaying, stillPlayingIndex){
+                let index=0, cardValue=0, highCardThrower=0;
+                for(let i=1; i<numberOfCardsOnTable; i++){
+                    let card = cardsOnTable[i];
+                    let tempIndex = getCardValue(card)
+                    //console.log(tempIndex)
+                    if(tempIndex >= cardValue){
+                        cardValue = tempIndex;
+                        index = i;
+                    }
+                }
+                //after finding the index of the highest card on the table, based on who threw the current card, turns are reversed to find out who threw the highest card.
+                for(let i=0; i<index; i++){
+                    if(stillPlayingIndex === 0){
+                        stillPlayingIndex = stillPlaying.length-1;
+                    }else{
+                        stillPlayingIndex -= 1;
+                    }
+                }
+                highCardThrower = stillPlaying[stillPlayingIndex];
+                return highCardThrower
+            }
+            function updateTurn(requestingUserCards, stillPlaying, stillPlayingIndex, numberOfCardsOnTable, collectionOccured){
+                let gameover = false;
+                let tempTurn =0;
+                let cardsLeft = requestingUserCards.length;
+
+                if(numberOfCardsOnTable !== 4 && collectionOccured === false){
+                    //sequential turn
+                    if(stillPlayingIndex === stillPlaying.length-1){
+                        tempTurn = stillPlaying[0];
+                    }else{
+                        tempTurn = stillPlaying[stillPlayingIndex+1];
+                    };
+                }else{
+                    //highest card thrower as next turn
+                    tempTurn = findTheHighestCardThrower(numberOfCardsOnTable, stillPlaying, stillPlayingIndex)
+                }
+                if(cardsLeft === 0){
+                    stillPlaying = updateArray(stillPlaying, stillPlayingIndex)
+                    gameRoom.stillPlaying = stillPlaying;
+                    if(stillPlaying.length === 1){
+                        gameover = true;
+                    }
+                }
+
+                return [tempTurn, gameover]
             }
             //check if it is the turn of the user trying to throw the card, if not send not ur turn message.
             if(requestingUserIndex === turn){
@@ -156,55 +195,29 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
                     requestingUserCards = updateArray(requestingUserCards, thrownCardIndex)
                     gameRoom[assignedDeckName] = requestingUserCards;
                     //update the cards on table array with the new card that was just thrown
-                    if(cardThrown !== "AS" && cardsOnTable.length+1<=4){
-                        cardsOnTable.unshift(cardThrown);
-                        gameRoom["cardOnTable"]=cardsOnTable;
-                    }else if(cardThrown !== "AS" && cardsOnTable.length+1>4){
-                        cardsOnTable = [];
-                        cardsOnTable.push(cardThrown)
-                        gameRoom["cardOnTable"]=cardsOnTable;
-                    }
-                    //console.log("cardsOnTable after resetting: ", cardsOnTable)
-                    //console.log(cardThrown[cardThrown.length-1] === suitOnTable, cardThrown[cardThrown.length-1], suitOnTable)
                     //if the thrown cards suit matches the suit of that round or if it is the first card thrown that round, then no one has to collect any cards.
-                    let updatedTurn = updateTurn(requestingUserCards, stillPlaying, stillPlayingIndex)
                     if(getCardSuit(cardThrown) === suitOnTable || cardsOnTable.length === 1){
                         //check if that was the user's last card, if so, pull them from still playing list. Then update turn based on whos left in the game:
+                        cardsOnTable=updateCardsOnTable(cardsOnTable);
+                        let updatedTurn = updateTurn(requestingUserCards, stillPlaying, stillPlayingIndex, cardsOnTable.length, false)
                         gameRoom.turn = updatedTurn[0]
+                        gameRoom["cardOnTable"]
                         gameRoom.save();
                         res.status(200).send({thrown: true, room: roomReq, gameover: updatedTurn[1]});
-                    }else if(getCardSuit(cardThrown) !== suitOnTable && cardsOnTable.length > 1){
-
-                    }else if(getCardSuit(cardThrown) !== suitOnTable && cardsOnTable.length > 1){
+                    }else if(requestingUserCards.map(card=> getCardSuit(card)).indexOf(getCardSuit(cardThrown)) !== -1){
+                        console.log("user has a card matching suit but did not throw it")
+                        res.status(200).send({thrown: false, reason: "Throw the card that matches the suit on table please."})
+                    }else{
                     //else if the suit does not match and its not the first card thrown that round, then the person that threw the highest card that round collects.
                         //find the index of the highest card thrown:
-                        let index=0, cardValue=0, numberOfCardsOnTable = cardsOnTable.length, collectorDeck, deckSpaceLeft, pickUpAmount, collector=0;
-                        for(let i=1; i<numberOfCardsOnTable; i++){
-                            let card = cardsOnTable[i];
-                            let tempIndex = getCardValue(card)
-                            //console.log(tempIndex)
-                            if(tempIndex >= cardValue){
-                                cardValue = tempIndex;
-                                index = i;
-                            }
-                        }
-                        //after finding the index of the highest card on the table, based on who threw the current card, turns are reversed to find out who threw the highest card.
-                        for(let i=0; i<index; i++){
-                            if(stillPlayingIndex === 0){
-                                stillPlayingIndex = stillPlaying.length-1;
-                            }else{
-                                stillPlayingIndex -= 1;
-                            }
-                        }
-                        //console.log(stillPlayingIndex)
-                        //highest card throwers deck is retrieved
-                        collector = stillPlaying[stillPlayingIndex];
+                        let collectorDeck=[], deckSpaceLeft=0, pickUpAmount=0;
+                        let updatedTurn = updateTurn(requestingUserCards, stillPlaying, stillPlayingIndex, cardsOnTable.length, true)
+                        let collector = updatedTurn[0]
+                        //highest card throwers deck is retrieved 
                         collectorDeck = gameRoom["deck"+collector];
-                        //console.log("collectors deck before: ", collectorDeck)
                         //since front end was designed hold a max of 13 cards in users deck, the user picks up cards from taht round as long as it doesnt exceed the max deck threshold
                         deckSpaceLeft = 13 - collectorDeck.length;
                         pickUpAmount = Math.min(deckSpaceLeft, cardsOnTable.length)
-                        //console.log("pickup", pickUpAmount, "deckSpaceLeft ", deckSpaceLeft, "cardsOnTable.length ", cardsOnTable.length)
                         for(let i=pickUpAmount-1; i>=0; i--){
                             collectorDeck.push(cardsOnTable[i])
                         }
@@ -222,24 +235,5 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
         };
     });
 });
-
-router.post("/getcardcount", middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, middleware.getProccessedRoomInfo, (req, res)=>{
-    let roomReq = req.body.room;
-    gamedataModel.findOne({ room: roomReq}, (err, gameRoom) =>{
-        if (err){
-            console.log(err)
-        }else if (gameRoom === null){
-            res.status(400).send("Room does not exist")
-        }else{
-            let keys = [];
-            keys = Object.keys(otherUsers);
-            for(let i=0; i<keys.length; i++){
-                let deckName = otherUsers[keys[i]];
-                otherUsers[keys[i]] = gameRoom[deckName].length;
-            }
-            res.status(200).send({otherUsers});
-        }
-    })
-})
 
 module.exports = router
