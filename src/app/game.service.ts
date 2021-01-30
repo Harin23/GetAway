@@ -12,6 +12,7 @@ export class GameService {
   private getCardsURL = "http://localhost:3000/gamedata/getgameinfo";
   private throwCardsURL = "http://localhost:3000/gamedata/throwcard";
   private cardCountURL = "http://localhost:3000/gamedata/getcardcount";
+  private gameoverURL = "http://localhost:3000/gamedata/gameover";
 
   private socket: any;
 
@@ -46,6 +47,10 @@ export class GameService {
 
   getCardCount(data: object){
     return this.http.post(this.cardCountURL, data, {responseType: 'json'})
+  }
+
+  gameOver(){
+    return this.http.post(this.gameoverURL, {responseType: 'json'})
   }
 
   //socket-io

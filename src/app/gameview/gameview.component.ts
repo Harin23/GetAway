@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
+import { ChatService } from '../chat.service';
 import { GameService } from '../game.service';
 
 @Component({
@@ -25,7 +26,8 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   constructor(
     private game: GameService,
     private router: Router,
-    private app: AppComponent
+    private app: AppComponent,
+    private chat: ChatService
   ) { }
 
   getCanvas(){
@@ -80,8 +82,12 @@ export class GameviewComponent implements OnInit, AfterViewInit {
       let card = data.card, gameover = data.gameover;
       this.placeCardOnTable(card);
       if(gameover === true){
-        let room = data.room;
-        this.router.navigateByUrl(`/join/${room}`)
+        this.game.gameOver().subscribe(
+          res=>{
+            this.gameOverDisplay(res["loser"])
+          },
+          err=>{console.log(err)}
+        )
       }else{
         this.game.getGameInfo().subscribe(
           res=>{
@@ -92,6 +98,14 @@ export class GameviewComponent implements OnInit, AfterViewInit {
         )
       }
     });
+  }
+
+  gameOverDisplay(loser: string){
+    let gcCTX = this.getCanvasContext();
+    gcCTX.clearRect(0, 0, this.canvasHeight, this.canvasHeight);
+    gcCTX.font = (this.fontSize*3) + "px" + " Arial bolder"
+    gcCTX.fillStyle = "black"
+    gcCTX.fillText(loser+" IS THE LOSER!!!", 0, this.canvasHeight/2, this.canvasWidth-10)
   }
 
   displayDeck(assignedDeck: Array<string>){
@@ -135,55 +149,64 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(){
-    let gcCTX = this.getCanvasContext();
-
-    //rectange of the table
-
-    gcCTX.fillRect(this.xr,this.yr,this.wr,this.hr);
-
-    //semi-circles of table
-    gcCTX.arc(this.xc1,this.yc,this.r,0.5*Math.PI,1.5*Math.PI);
-    gcCTX.fillStyle = "RGB(53,101,77)"
-    gcCTX.fill();
-    
-    gcCTX.arc(this.xc2,this.yc,this.r,1.5*Math.PI,0.5*Math.PI);
-    gcCTX.fill();
-
-    //outline for card thrown on the table:
-    const dwCardOutline = this.dwCard+10;
-    const dhCardOutline = this.dhCard+10;
-    const dxCardOutline = ((this.xc1+this.xc2)*0.5)-(0.5*dwCardOutline);
-    const dyCardOutline = this.yr + (this.hr - dhCardOutline)*0.5;
-    gcCTX.fillStyle = "rgb(128, 0, 0)"
-    gcCTX.fillRect(dxCardOutline,dyCardOutline,dwCardOutline,dhCardOutline);
-
-    //getaway text
-    const maxWidthText = dxCardOutline - this.xc1;
-    const yText = this.yc*1.05;
-    const xText1 = this.xc1;
-    gcCTX.font = (this.fontSize*1.4) + "px" +" Arial bolder"
-    gcCTX.fillStyle = "rgb(128, 0, 0)"
-    gcCTX.fillText("GET", xText1, yText, maxWidthText)
-    const xText2 = dxCardOutline + dwCardOutline;
-    gcCTX.fillText("AWAY!", xText2, yText, maxWidthText)
-    //the users cards:
-    this.game.getGameInfo().subscribe(
+    this.game.gameOver().subscribe(
       res=>{
-        //console.log(res)
-        this.placeCardOnTable(res["cardOnTable"]);
-        this.displayOtherUsers(res["otherUsers"]);
-        this.displayDeck(res["assignedDeck"]);
-        this.game.joinRoom(res["roomReq"]);
-      },
-      err=>{
-        console.log(err)
-      }
-    )
+        if(res["gameover"] === false){
+
+          let gcCTX = this.getCanvasContext();
+
+          //rectange of the table
+          gcCTX.fillRect(this.xr,this.yr,this.wr,this.hr);
+
+          //semi-circles of table
+          gcCTX.arc(this.xc1,this.yc,this.r,0.5*Math.PI,1.5*Math.PI);
+          gcCTX.fillStyle = "RGB(53,101,77)"
+          gcCTX.fill();
           
-    let gamecanvas = this.getCanvas();
-    gamecanvas.addEventListener("click", (e)=>{
-      this.throwCard(e)
-    })
+          gcCTX.arc(this.xc2,this.yc,this.r,1.5*Math.PI,0.5*Math.PI);
+          gcCTX.fill();
+
+          //outline for card thrown on the table:
+          const dwCardOutline = this.dwCard+10;
+          const dhCardOutline = this.dhCard+10;
+          const dxCardOutline = ((this.xc1+this.xc2)*0.5)-(0.5*dwCardOutline);
+          const dyCardOutline = this.yr + (this.hr - dhCardOutline)*0.5;
+          gcCTX.fillStyle = "rgb(128, 0, 0)"
+          gcCTX.fillRect(dxCardOutline,dyCardOutline,dwCardOutline,dhCardOutline);
+
+          //getaway text
+          const maxWidthText = dxCardOutline - this.xc1;
+          const yText = this.yc*1.05;
+          const xText1 = this.xc1;
+          gcCTX.font = (this.fontSize*1.4) + "px" +" Arial bolder"
+          gcCTX.fillStyle = "rgb(128, 0, 0)"
+          gcCTX.fillText("GET", xText1, yText, maxWidthText)
+          const xText2 = dxCardOutline + dwCardOutline;
+          gcCTX.fillText("AWAY!", xText2, yText, maxWidthText)
+          //the users cards:
+          this.game.getGameInfo().subscribe(
+            res=>{
+              //console.log(res)
+              this.placeCardOnTable(res["cardOnTable"]);
+              this.displayOtherUsers(res["otherUsers"]);
+              this.displayDeck(res["assignedDeck"]);
+              this.game.joinRoom(res["roomReq"]);
+            },
+            err=>{
+              console.log(err)
+            }
+          )
+                
+          let gamecanvas = this.getCanvas();
+          gamecanvas.addEventListener("click", (e)=>{
+            this.throwCard(e)
+          })
+        }else{
+          this.gameOverDisplay(res["loser"])
+        }
+      },
+      err=>{console.log(err)}
+    )
   }
 
   findClickedCard(clicked: { x: any; y: any; }){

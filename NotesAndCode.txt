@@ -132,3 +132,8 @@ gcCTX.fillRect(selection.cardSelected[0], this.dyUserCards, this.dwUserCards, th
     thrown1: [String],
     thrown2: [String],
     thrown3: [String],
+---------------chat html for extra container on left-------
+<div class="container recieve-message w-25 float-left">
+    <div class="container h-100 bg-secondary mt-2 overflow-auto text" id="displayMessages">
+    </div>
+</div>
