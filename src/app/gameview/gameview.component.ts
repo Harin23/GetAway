@@ -152,6 +152,10 @@ export class GameviewComponent implements OnInit, AfterViewInit {
 
   displayCurrentTurn(turn: string){
     let gcCTX = this.getCanvasContext();
+
+    gcCTX.fillStyle = "lightsteelblue"
+    gcCTX.fillRect(0, 0,this.OtherUsersNamesTextWidth,this.fontSize);
+
     gcCTX.font = (this.fontSize*0.75) + "px" + " Arial bolder"
     gcCTX.fillStyle = "black"
     gcCTX.fillText("Turn: "+turn, 0, this.navbarHeight+20, this.OtherUsersNamesTextWidth)
@@ -194,7 +198,6 @@ export class GameviewComponent implements OnInit, AfterViewInit {
           this.displayDeck(res["assignedDeck"]);
           this.displayOtherUsers(res["otherUsers"]);
           this.displayCurrentTurn(res["currentTurn"])
-          //this.game.joinRoom(res["roomReq"]);
           this.subscription1$ = this.game.listen("cardThrown").subscribe((data) => this.cardThrown(data));
           let gamecanvas = this.getCanvas();
           gamecanvas.addEventListener("click", (e)=>{
