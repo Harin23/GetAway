@@ -97,9 +97,8 @@ router.post('/getgameinfo', middleware.verifyToken, middleware.getUsername, midd
                 let assignedDeck = gameRoom[assignedDeckName];
                 otherUsers.map(obj=>{
                     obj.deck = gameRoom[obj.deck].length
-                })
-                let turn = gameRoom.currTurn
-                userTurn = users[turn]
+                }) 
+                let userTurn = users[gameRoom.currTurn]
                 res.status(200).send({gameover: false, currentTurn: userTurn, assignedDeck, cardOnTable, otherUsers});
             }else{
                 let loserDeck = "deck" + stillPlaying[0];
