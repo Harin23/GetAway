@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
+import { AuthService } from '../auth.service';
 import { ChatService } from '../chat.service';
 import { GameService } from '../game.service';
 
@@ -27,7 +28,8 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     private game: GameService,
     private router: Router,
     private app: AppComponent,
-    private chat: ChatService
+    private chat: ChatService,
+    private auth: AuthService
   ) { }
 
   getCanvas(){
@@ -131,7 +133,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     }
   }
 
-  displayOtherUsers(otherUsers){
+  displayOtherUsers(otherUsers: string | any[]){
     let gcCTX = this.getCanvasContext();
     for(let i=0; i<otherUsers.length; i++){
       //console.log(otherUsers[keys[i]], this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
@@ -139,7 +141,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
       gcCTX.fillRect(this.OtherUsersNamesX[i],this.otherUsersNamesY[i],this.OtherUsersNamesTextWidth,this.fontSize*2);
 
       gcCTX.font = this.fontSize + "px" + " Arial bolder"
-      gcCTX.fillStyle = "black"
+      gcCTX.fillStyle = "blue"
       gcCTX.fillText(otherUsers[i]["user"]+":", this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
 
       gcCTX.font = this.fontSize + "px" + " Arial bolder"
@@ -148,11 +150,11 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     }
   }
 
-  displayCurrentTurn(turn){
+  displayCurrentTurn(turn: string){
     let gcCTX = this.getCanvasContext();
-    gcCTX.font = this.fontSize + "px" + " Arial bolder"
+    gcCTX.font = (this.fontSize*0.75) + "px" + " Arial bolder"
     gcCTX.fillStyle = "black"
-    gcCTX.fillText("Turn: "+turn, 0, 0, this.canvasWidth)
+    gcCTX.fillText("Turn: "+turn, 0, this.navbarHeight+20, this.OtherUsersNamesTextWidth)
   }
 
   gameOverDisplay(loser: string){
@@ -167,33 +169,17 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     gcCTX.font = this.fontSize + "px" + " Arial bolder"
     gcCTX.fillStyle = "black"
     gcCTX.fillText("Play Again", this.canvasWidth/2,this.canvasHeight/2, this.wr/2)
-
-    let gamecanvas = this.getCanvas();
-    gamecanvas.addEventListener("click", this.playAgain)
   }
 
   ngOnInit() {
     this.app.UserAlreadySignedIn();
     this.setVariables();
-    this.subscription1$ = this.game.listen("cardThrown").subscribe((data) =>{
-      let card = data.card
-      this.placeCardOnTable(card);
-      this.game.getGameInfo().subscribe(
-        res=>{
-          let gameover = res["gameover"]
-          if(gameover === false){
-            this.displayDeck(res["assignedDeck"]);
-            this.displayOtherUsers(res["otherUsers"]);
-            this.displayCurrentTurn(res["currentTurn"]);
-          }else{
-            let gamecanvas = this.getCanvas();
-            gamecanvas.removeEventListener("click", this.throwCard)
-            this.gameOverDisplay(res["loser"])
-          }
-        },
-        err=>{console.log(err)}
-      )
-    });
+    this.auth.getUserInfo().subscribe(
+      res=>{
+        this.game.joinRoom(res["room"]);
+      },
+      err=>{console.log(err)}
+    );
   }
 
   ngAfterViewInit(){     
@@ -207,9 +193,13 @@ export class GameviewComponent implements OnInit, AfterViewInit {
           this.placeCardOnTable(res["cardOnTable"]);
           this.displayDeck(res["assignedDeck"]);
           this.displayOtherUsers(res["otherUsers"]);
-          this.game.joinRoom(res["roomReq"]);
+          this.displayCurrentTurn(res["currentTurn"])
+          //this.game.joinRoom(res["roomReq"]);
+          this.subscription1$ = this.game.listen("cardThrown").subscribe((data) => this.cardThrown(data));
           let gamecanvas = this.getCanvas();
-          gamecanvas.addEventListener("click", this.throwCard)
+          gamecanvas.addEventListener("click", (e)=>{
+            this.throwCard(e);
+          })
         }else{
           this.gameOverDisplay(res["loser"]);
         }    
@@ -255,41 +245,53 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     }
   }
 
-  playAgain(e: MouseEvent){
-    if(e.x > this.canvasWidth/2 && e.x < (this.canvasWidth/2)+this.wr/2){
-      if(e.y > this.canvasHeight/2 && e.y < (this.canvasHeight/2)+this.hr/2){
-        this.game.shuffle().subscribe(
-          res=>{
-            console.log(res);
-            if(res["cardsShuffled"] === true){
-              this.game.getGameInfo().subscribe(
-                res=>{
-                  let gameover = res["gameover"]
-                  if(gameover === false){
-                    this.drawTable();
-                    this.placeCardOnTable(res["cardOnTable"]);
-                    this.displayDeck(res["assignedDeck"]);
-                    this.displayOtherUsers(res["otherUsers"]);
-                    this.game.joinRoom(res["roomReq"]);
-                    let gamecanvas = this.getCanvas();
-                    gamecanvas.addEventListener("click", this.throwCard)
-                  }else{
-                    this.gameOverDisplay(res["loser"]);
-                  }    
-                },
-                err=>{
-                  console.log(err)
-                }
-              )         
-
-            }
-          },
-          err=>{console.log(err)}
-        )
-      }
-    }
-
+  cardThrown(data: any){
+    let card = data.card
+    this.placeCardOnTable(card);
+    this.game.getGameInfo().subscribe(
+      res=>{
+        let gameover = res["gameover"]
+        if(gameover === false){
+          this.displayDeck(res["assignedDeck"]);
+          this.displayOtherUsers(res["otherUsers"]);
+          this.displayCurrentTurn(res["currentTurn"]);
+        }else{
+          this.gameOverDisplay(res["loser"])
+        }
+      },
+      err=>{console.log(err)}
+    )
   }
+
+  // playAgain(e: MouseEvent){
+  //   if(e.x > this.canvasWidth/2 && e.x < (this.canvasWidth/2)+this.wr/2){
+  //     if(e.y > this.canvasHeight/2 && e.y < (this.canvasHeight/2)+this.hr/2){
+  //       this.game.shuffle().subscribe(
+  //         res=>{
+  //           if(res["shuffled"] === true){
+  //             this.game.getGameInfo().subscribe(
+  //               res=>{
+  //                 this.drawTable();
+  //                 this.placeCardOnTable(res["cardOnTable"]);
+  //                 this.displayDeck(res["assignedDeck"]);
+  //                 this.displayOtherUsers(res["otherUsers"]);
+  //                 this.game.joinRoom(res["roomReq"]);
+  //                 let gamecanvas = this.getCanvas();
+  //                 gamecanvas.removeEventListener("click", this.playAgain)
+  //                 gamecanvas.addEventListener("click", this.throwCard)   
+  //               },
+  //               err=>{
+  //                 console.log(err)
+  //               }
+  //             ) 
+  //           }        
+  //         },
+  //           err=>{console.log(err)}
+  //       )
+  //     }
+  //   }
+  // }
+
   ngOnDestroy(): void{
     this.subscription1$.unsubscribe();
   }

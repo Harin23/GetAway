@@ -65,7 +65,7 @@ router.post('/shuffle', middleware.verifyToken, middleware.getUsername, middlewa
                     room.deck3 = deck.slice(39,52);
                     room.cardsShuffled = true;
                     room.currentRound = {thrower: "noONE", card: "blank"}
-                    room.turn = turn;
+                    room.currTurn = turn;
                     room.stillPlaying = [0, 1, 2, 3];
                     room.save()
                     res.status(200).send({cardsShuffled: true})
@@ -229,7 +229,7 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
                 let currTurnIndex = stillPlaying.indexOf(turn);
                 if(thrownCardIndex !== -1 && stillPlaying.length > 1){
                     //before updating cards on table, check if throw is valid, if so which case it falls under:
-                    if(cardsOnTable[0].card === blank || cardsOnTable.length === 4){
+                    if(cardsOnTable[0].card === "blank" || cardsOnTable.length === 4){
                         //case1: The card thrown will be the first of the round, so its suit does not matter at this point.
                         //cardsOnTable = updateCardsOnTable(cardsOnTable, cardThrown, turn);
                         cardsOnTable = [];
@@ -264,7 +264,7 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
                         gameRoom.stillPlaying = stillPlaying;
                         gameRoom.save();
                         res.status(200).send({room: roomReq})
-                    }else if(requestingUserCards.map(card=> getCardSuit(card)).indexOf(suitOnTable) !== -1){
+                    }else if(requestingUserCards.map(card=> getCardSuit(card)).indexOf(getCardSuit(cardsOnTable[0].card)) !== -1){
                         //case 3:The card thrown is not the first in the round, and the cards suit doesn't matches the round's suit.
                         //But the user has the card with the matching suit.
                         res.status(400).send("Throw the card matching the suit of the round")

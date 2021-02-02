@@ -119,7 +119,7 @@ function getProccessedRoomInfo(req, res, next){
                 }
             }).filter(item => item);
         }
-        console.log(userReq, otherUsers)
+        //console.log(userReq, otherUsers)
         res.locals.assignedDeckName = assignedDeckName;
         res.locals.index = index;
         res.locals.otherUsers = otherUsers;
