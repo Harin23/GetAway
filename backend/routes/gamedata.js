@@ -14,8 +14,11 @@ mongoose.connect(db_uri, {useNewUrlParser: true, useUnifiedTopology: true }, err
     }
 });
 
-router.post('/shuffle', (req,res) => {
-    roomName = req.body['room'];
+router.post('/shuffle', middleware.verifyToken, middleware.getUsername, middleware.getRoomInfo, (req,res) => {
+    let roomName = res.locals.roomInfo.room;
+    let user = res.locals.name;
+    let users = res.locals.roomInfo.users;
+    let userIndex = users.indexOf(user);
     gamedataModel.findOne({ room: roomName}, (err, room) =>{
         if (err){
             console.log(err)
@@ -42,7 +45,7 @@ router.post('/shuffle', (req,res) => {
                 })
             }
             let shuffled = room.cardsShuffled;
-            if (shuffled === false){
+            if (shuffled === false && userIndex === 0){
                 //shuffle requestingUserCards
                 shuffleCards().then((shuffledDeck) =>{
                     let turn = 0, index=0, deck = shuffledDeck.deck;
@@ -62,15 +65,17 @@ router.post('/shuffle', (req,res) => {
                     room.deck3 = deck.slice(39,52);
                     room.cardsShuffled = true;
                     room.currentRound = {thrower: "noONE", card: "blank"}
-                    room.gamestarted = false;
-                    room.gameover = false;
                     room.turn = turn;
                     room.stillPlaying = [0, 1, 2, 3];
                     room.save()
-                    res.status(200).send("Cards Shuffled")
+                    res.status(200).send({cardsShuffled: true})
                 })       
             }else{
-                res.status(200).send("Cards already shuffled")
+                if(shuffled === true){
+                    res.status(400).send("Cards already shuffled")
+                }else{
+                    res.status(400).send("Only room leader can shuffle cards")
+                }
             }
         }
     })
@@ -102,6 +107,11 @@ router.post('/getgameinfo', middleware.verifyToken, middleware.getUsername, midd
                 res.status(200).send({gameover: false, currentTurn: userTurn, assignedDeck, cardOnTable, otherUsers});
             }else{
                 let loserDeck = "deck" + stillPlaying[0];
+                let shuffled = gameRoom.cardsShuffled;
+                if(shuffled === true){
+                    gameRoom.cardsShuffled = false;
+                    gameRoom.save();
+                }
                 if(loserDeck === assignedDeckName){
                     res.status(200).send({gameover: true, loser: name})
                 }else{

@@ -24,10 +24,8 @@ export class GameService {
   }
 
   //db methods
-  shuffle(room: string){
-    console.log(room)
-    let roomInfo = { room: room }
-    return this.http.post(this.shuffleURL, roomInfo, {responseType: 'text'});
+  shuffle(){
+    return this.http.post(this.shuffleURL, {responseType: 'json'});
   };
 
   getGameInfo(){
@@ -47,10 +45,6 @@ export class GameService {
 
   getCardCount(data: object){
     return this.http.post(this.cardCountURL, data, {responseType: 'json'})
-  }
-
-  gameOver(){
-    return this.http.post(this.gameoverURL, {responseType: 'json'})
   }
 
   //socket-io

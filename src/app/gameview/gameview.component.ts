@@ -77,6 +77,8 @@ export class GameviewComponent implements OnInit, AfterViewInit {
   drawTable(){
     let gcCTX = this.getCanvasContext();
 
+    gcCTX.clearRect(0, 0, this.canvasHeight, this.canvasHeight);
+
     //rectange of the table
     gcCTX.fillRect(this.xr,this.yr,this.wr,this.hr);
 
@@ -165,6 +167,9 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     gcCTX.font = this.fontSize + "px" + " Arial bolder"
     gcCTX.fillStyle = "black"
     gcCTX.fillText("Play Again", this.canvasWidth/2,this.canvasHeight/2, this.wr/2)
+
+    let gamecanvas = this.getCanvas();
+    gamecanvas.addEventListener("click", this.playAgain)
   }
 
   ngOnInit() {
@@ -181,6 +186,8 @@ export class GameviewComponent implements OnInit, AfterViewInit {
             this.displayOtherUsers(res["otherUsers"]);
             this.displayCurrentTurn(res["currentTurn"]);
           }else{
+            let gamecanvas = this.getCanvas();
+            gamecanvas.removeEventListener("click", this.throwCard)
             this.gameOverDisplay(res["loser"])
           }
         },
@@ -201,9 +208,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
           this.displayOtherUsers(res["otherUsers"]);
           this.game.joinRoom(res["roomReq"]);
           let gamecanvas = this.getCanvas();
-          gamecanvas.addEventListener("click", (e)=>{
-            this.throwCard(e)
-          })
+          gamecanvas.addEventListener("click", this.throwCard)
         }else{
           this.gameOverDisplay(res["loser"]);
         }    
@@ -249,6 +254,41 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     }
   }
 
+  playAgain(e: MouseEvent){
+    if(e.x > this.canvasWidth/2 && e.x < (this.canvasWidth/2)+this.wr/2){
+      if(e.y > this.canvasHeight/2 && e.y < (this.canvasHeight/2)+this.hr/2){
+        this.game.shuffle().subscribe(
+          res=>{
+            console.log(res);
+            if(res["cardsShuffled"] === true){
+              this.game.getGameInfo().subscribe(
+                res=>{
+                  let gameover = res["gameover"]
+                  if(gameover === false){
+                    this.drawTable();
+                    this.placeCardOnTable(res["cardOnTable"]);
+                    this.displayDeck(res["assignedDeck"]);
+                    this.displayOtherUsers(res["otherUsers"]);
+                    this.game.joinRoom(res["roomReq"]);
+                    let gamecanvas = this.getCanvas();
+                    gamecanvas.addEventListener("click", this.throwCard)
+                  }else{
+                    this.gameOverDisplay(res["loser"]);
+                  }    
+                },
+                err=>{
+                  console.log(err)
+                }
+              )         
+
+            }
+          },
+          err=>{console.log(err)}
+        )
+      }
+    }
+
+  }
   ngOnDestroy(): void{
     this.subscription1$.unsubscribe();
   }

@@ -13,6 +13,5 @@ const gamedataSchema = new mongoose.Schema({
     }],
     usersStillPlaying: [Number],
     currTurn: Number,
-    gameover: Boolean
 });
 module.exports = mongoose.model('gamedata', gamedataSchema, 'gamedata');

@@ -39,8 +39,8 @@ export class HostComponent implements OnInit {
     this.router.navigateByUrl(`/join/${room}`)
   }
 
-  shuffleCards(room: string){
-    this.game.shuffle(room).subscribe(
+  shuffleCards(){
+    this.game.shuffle().subscribe(
       res=>{console.log(res)},
       err=>{console.log(err)}
     )
@@ -61,7 +61,7 @@ export class HostComponent implements OnInit {
       this.lobby.newRoom(newRoomName).subscribe(
         res => {
           let name=res["name"]
-          this.shuffleCards(newRoomName)
+          this.shuffleCards()
           this.joinedRoom(newRoomName, name);
         },
         err => {console.log(err)}
