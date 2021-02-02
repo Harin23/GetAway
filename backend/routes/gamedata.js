@@ -98,7 +98,7 @@ router.post('/getgameinfo', middleware.verifyToken, middleware.getUsername, midd
         }else{
             let stillPlaying = gameRoom.stillPlaying;
             if(stillPlaying.length > 1){
-                let cardOnTable = gameRoom["cardOnTable"][0];
+                let cardOnTable = gameRoom.currentRound[0].card;
                 let assignedDeck = gameRoom[assignedDeckName];
                 otherUsers.map(obj=>{
                     obj.deck = gameRoom[obj.deck].length

@@ -115,7 +115,6 @@ export class AppComponent {
     if (this.auth.userDataPresent()){
       this.lobby.leaveRoom().subscribe(
         res=>{
-          console.log(res)
           let username = res["name"];
           let room = res["room"];
           this.leftTheChat(room, username);

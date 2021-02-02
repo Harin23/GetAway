@@ -105,11 +105,21 @@ function getProccessedRoomInfo(req, res, next){
         let index = users.indexOf(userReq);
         let assignedDeckName = "deck" + index;
         let otherUsers =  [];
-        for(let i=0; i<users.length; i++){
-            if(i !== index){
-                otherUsers[i] = {user: users[i], deck: "deck" + i}
-            }
+        if(users.length > 1){
+            otherUsers = users.map((user, i)=>{
+                if(i !== index){
+                    return {user: user, deck: "deck" + i}
+                }
+            }).filter(item => item);
+        }else{
+            users.push("user2", "user3", "user4");
+            otherUsers = users.map((user, i)=>{
+                if(i !== index){
+                    return {user: user, deck: "deck" + i}
+                }
+            }).filter(item => item);
         }
+        console.log(userReq, otherUsers)
         res.locals.assignedDeckName = assignedDeckName;
         res.locals.index = index;
         res.locals.otherUsers = otherUsers;

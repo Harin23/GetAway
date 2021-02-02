@@ -140,11 +140,11 @@ export class GameviewComponent implements OnInit, AfterViewInit {
 
       gcCTX.font = this.fontSize + "px" + " Arial bolder"
       gcCTX.fillStyle = "black"
-      gcCTX.fillText(otherUsers[i].user+":", this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
+      gcCTX.fillText(otherUsers[i]["user"]+":", this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
 
       gcCTX.font = this.fontSize + "px" + " Arial bolder"
       gcCTX.fillStyle = "blue"
-      gcCTX.fillText(otherUsers[i].deck, this.OtherUsersNamesX[i], this.otherUsersNamesY[i]+this.fontSize, this.OtherUsersNamesTextWidth)
+      gcCTX.fillText(otherUsers[i]["deck"], this.OtherUsersNamesX[i], this.otherUsersNamesY[i]+this.fontSize, this.OtherUsersNamesTextWidth)
     }
   }
 
@@ -200,6 +200,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     //the users cards:
     this.game.getGameInfo().subscribe(
       res=>{
+        console.log(res)
         let gameover = res["gameover"]
         if(gameover === false){
           this.drawTable();

@@ -11,7 +11,7 @@ const gamedataSchema = new mongoose.Schema({
         thrower: String,
         card: String
     }],
-    usersStillPlaying: [Number],
+    stillPlaying: [Number],
     currTurn: Number,
 });
 module.exports = mongoose.model('gamedata', gamedataSchema, 'gamedata');

@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
 import { AuthService } from '../auth.service';
 import { ChatService } from '../chat.service';
-import { LobbyService } from '../lobby.service';
 
 @Component({
   selector: 'app-join',
@@ -19,7 +19,8 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private auth: AuthService,
     private chat: ChatService,
-    private app: AppComponent
+    private app: AppComponent,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -29,6 +30,7 @@ export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
         let room = res["room"];
         this.username = res["name"]
         this.chat.joinRoom(room);
+        this.router.navigateByUrl(`/join/${room}`)
       },
       err=>{console.log(err)}
     );
