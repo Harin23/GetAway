@@ -104,10 +104,10 @@ function getProccessedRoomInfo(req, res, next){
     }else{
         let index = users.indexOf(userReq);
         let assignedDeckName = "deck" + index;
-        let otherUsers =  {};
+        let otherUsers =  [];
         for(let i=0; i<users.length; i++){
             if(i !== index){
-                otherUsers[users[i]] = "deck" + i;
+                otherUsers[i] = {user: users[i], deck: "deck" + i}
             }
         }
         res.locals.assignedDeckName = assignedDeckName;

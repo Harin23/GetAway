@@ -338,3 +338,10 @@ gcCTX.fillRect(selection.cardSelected[0], this.dyUserCards, this.dwUserCards, th
     <div class="container h-100 bg-secondary mt-2 overflow-auto text" id="displayMessages">
     </div>
 </div>
+---------------
+          let keys = [];
+            keys = Object.keys(otherUsers);
+                for(let i=0; i<keys.length; i++){
+                    let deckName = otherUsers[keys[i]];
+                    otherUsers[keys[i]] = gameRoom[deckName].length;
+                }

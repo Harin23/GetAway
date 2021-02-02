@@ -78,25 +78,20 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     this.app.UserAlreadySignedIn();
     this.setVariables();
     this.subscription1$ = this.game.listen("cardThrown").subscribe((data) =>{
-      //console.log("recieved: ", data)
-      let card = data.card, gameover = data.gameover;
+      let card = data.card
       this.placeCardOnTable(card);
-      if(gameover === true){
-        this.game.gameOver().subscribe(
-          res=>{
-            this.gameOverDisplay(res["loser"])
-          },
-          err=>{console.log(err)}
-        )
-      }else{
-        this.game.getGameInfo().subscribe(
-          res=>{
+      this.game.getGameInfo().subscribe(
+        res=>{
+          let gameover = res["gameover"]
+          if(gameover === false){
             this.displayDeck(res["assignedDeck"]);
             this.displayOtherUsers(res["otherUsers"]);
-          },
-          err=>{console.log(err)}
-        )
-      }
+          }else{
+            this.gameOverDisplay(res["loser"])
+          }
+        },
+        err=>{console.log(err)}
+      )
     });
   }
 
@@ -130,83 +125,79 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     }
   }
 
-  displayOtherUsers(otherUsers: Object){
+  displayOtherUsers(otherUsers){
     let gcCTX = this.getCanvasContext();
-    let keys = Object.keys(otherUsers);
-    for(let i=0; i<keys.length; i++){
+    for(let i=0; i<otherUsers.length; i++){
       //console.log(otherUsers[keys[i]], this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
       gcCTX.fillStyle = "lightsteelblue"
       gcCTX.fillRect(this.OtherUsersNamesX[i],this.otherUsersNamesY[i],this.OtherUsersNamesTextWidth,this.fontSize*2);
 
       gcCTX.font = this.fontSize + "px" + " Arial bolder"
       gcCTX.fillStyle = "black"
-      gcCTX.fillText(keys[i]+":", this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
+      gcCTX.fillText(otherUsers[i].user+":", this.OtherUsersNamesX[i], this.otherUsersNamesY[i], this.OtherUsersNamesTextWidth)
 
       gcCTX.font = this.fontSize + "px" + " Arial bolder"
       gcCTX.fillStyle = "blue"
-      gcCTX.fillText(otherUsers[keys[i]], this.OtherUsersNamesX[i], this.otherUsersNamesY[i]+this.fontSize, this.OtherUsersNamesTextWidth)
+      gcCTX.fillText(otherUsers[i].deck, this.OtherUsersNamesX[i], this.otherUsersNamesY[i]+this.fontSize, this.OtherUsersNamesTextWidth)
     }
   }
 
-  ngAfterViewInit(){
-    this.game.gameOver().subscribe(
+  drawTable(){
+    let gcCTX = this.getCanvasContext();
+
+    //rectange of the table
+    gcCTX.fillRect(this.xr,this.yr,this.wr,this.hr);
+
+    //semi-circles of table
+    gcCTX.arc(this.xc1,this.yc,this.r,0.5*Math.PI,1.5*Math.PI);
+    gcCTX.fillStyle = "RGB(53,101,77)"
+    gcCTX.fill();
+    
+    gcCTX.arc(this.xc2,this.yc,this.r,1.5*Math.PI,0.5*Math.PI);
+    gcCTX.fill();
+
+    //outline for card thrown on the table:
+    const dwCardOutline = this.dwCard+10;
+    const dhCardOutline = this.dhCard+10;
+    const dxCardOutline = ((this.xc1+this.xc2)*0.5)-(0.5*dwCardOutline);
+    const dyCardOutline = this.yr + (this.hr - dhCardOutline)*0.5;
+    gcCTX.fillStyle = "rgb(128, 0, 0)"
+    gcCTX.fillRect(dxCardOutline,dyCardOutline,dwCardOutline,dhCardOutline);
+
+    //getaway text
+    const maxWidthText = dxCardOutline - this.xc1;
+    const yText = this.yc*1.05;
+    const xText1 = this.xc1;
+    gcCTX.font = (this.fontSize*1.4) + "px" +" Arial bolder"
+    gcCTX.fillStyle = "rgb(128, 0, 0)"
+    gcCTX.fillText("GET", xText1, yText, maxWidthText)
+    const xText2 = dxCardOutline + dwCardOutline;
+    gcCTX.fillText("AWAY!", xText2, yText, maxWidthText)
+  }
+
+  ngAfterViewInit(){     
+    //the users cards:
+    this.game.getGameInfo().subscribe(
       res=>{
-        if(res["gameover"] === false){
-
-          let gcCTX = this.getCanvasContext();
-
-          //rectange of the table
-          gcCTX.fillRect(this.xr,this.yr,this.wr,this.hr);
-
-          //semi-circles of table
-          gcCTX.arc(this.xc1,this.yc,this.r,0.5*Math.PI,1.5*Math.PI);
-          gcCTX.fillStyle = "RGB(53,101,77)"
-          gcCTX.fill();
-          
-          gcCTX.arc(this.xc2,this.yc,this.r,1.5*Math.PI,0.5*Math.PI);
-          gcCTX.fill();
-
-          //outline for card thrown on the table:
-          const dwCardOutline = this.dwCard+10;
-          const dhCardOutline = this.dhCard+10;
-          const dxCardOutline = ((this.xc1+this.xc2)*0.5)-(0.5*dwCardOutline);
-          const dyCardOutline = this.yr + (this.hr - dhCardOutline)*0.5;
-          gcCTX.fillStyle = "rgb(128, 0, 0)"
-          gcCTX.fillRect(dxCardOutline,dyCardOutline,dwCardOutline,dhCardOutline);
-
-          //getaway text
-          const maxWidthText = dxCardOutline - this.xc1;
-          const yText = this.yc*1.05;
-          const xText1 = this.xc1;
-          gcCTX.font = (this.fontSize*1.4) + "px" +" Arial bolder"
-          gcCTX.fillStyle = "rgb(128, 0, 0)"
-          gcCTX.fillText("GET", xText1, yText, maxWidthText)
-          const xText2 = dxCardOutline + dwCardOutline;
-          gcCTX.fillText("AWAY!", xText2, yText, maxWidthText)
-          //the users cards:
-          this.game.getGameInfo().subscribe(
-            res=>{
-              //console.log(res)
-              this.placeCardOnTable(res["cardOnTable"]);
-              this.displayOtherUsers(res["otherUsers"]);
-              this.displayDeck(res["assignedDeck"]);
-              this.game.joinRoom(res["roomReq"]);
-            },
-            err=>{
-              console.log(err)
-            }
-          )
-                
+        let gameover = res["gameover"]
+        if(gameover === false){
+          this.drawTable();
+          this.placeCardOnTable(res["cardOnTable"]);
+          this.displayDeck(res["assignedDeck"]);
+          this.displayOtherUsers(res["otherUsers"]);
+          this.game.joinRoom(res["roomReq"]);
           let gamecanvas = this.getCanvas();
           gamecanvas.addEventListener("click", (e)=>{
             this.throwCard(e)
           })
         }else{
-          this.gameOverDisplay(res["loser"])
-        }
+          this.gameOverDisplay(res["loser"]);
+        }    
       },
-      err=>{console.log(err)}
-    )
+      err=>{
+        console.log(err)
+      }
+    )         
   }
 
   findClickedCard(clicked: { x: any; y: any; }){
@@ -231,20 +222,13 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     //card thrown on the table
     let clicked = {x:e.x, y:e.y}
     let selection = this.findClickedCard(clicked);
-
     if(selection.selectionMade === true){
       let data = {card: selection.cardSelected}
       this.game.throwCard(data).subscribe(
         res=>{
-          console.log(res)
-          if(res["thrown"] === true){
             delete this.dxUserCards[selection.cardSelected];
             data["room"] = res["room"];
-            data["gameover"] = res["gameover"];
             this.game.onTable(data);
-          }else{
-            console.log(res["reason"])
-          }
         },
         err=>{console.log(err)}
       )  

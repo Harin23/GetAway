@@ -11,7 +11,6 @@ const gamedataSchema = new mongoose.Schema({
         thrower: String,
         card: String
     }],
-    runningSuit: String,
     usersStillPlaying: [Number],
     currTurn: Number,
     gameover: Boolean
