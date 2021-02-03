@@ -144,18 +144,6 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
         return card.slice(card.length-1)
     }
 
-    // function updateCardsOnTable(cardsOnTable, cardThrown, turn){
-    //     console.log(cardsOnTable)
-    //     if(cardsOnTable.length+1 <= 4 && cardsOnTable[0].card !== "blank"){
-    //         cardsOnTable.unshift({thrower: turn, card: cardThrown});
-    //     }else if(cardsOnTable.length+1 > 4 || cardsOnTable[0].card === "blank"){
-    //         cardsOnTable = [];
-    //         cardsOnTable.push({thrower: turn, card: cardThrown})
-    //     }
-    //     console.log(cardsOnTable)
-    //     return cardsOnTable;
-    // }
-
     function sortPlayersBasedOnCardThrown(cardsOnTable, stillPlaying){
         //ensure everything passed into this func is updated before calling this
         let sorted = cardsOnTable.slice(0)
@@ -187,28 +175,6 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
         return stillPlaying
     }
 
-    // function updateTurn(cardsOnTable, collectionOccured, stillPlaying, turn, cardsLeft){
-    //     //ensure everything passed into this func is updated before calling this
-    //     let update=[];
-    //    if(collectionOccured === false && cardsOnTable.length < 4){
-    //         //sequential turn
-            
-    //         //update stillplaying after determining sequential turn
-    //         update = updateStillPlaying(cardsLeft, stillPlaying, currTurnIndex);
-    //     }else if(collectionOccured === false && cardsOnTable.length === 4){
-    //         //highest card thrower as next turn
-    //         //update stillplaying before updating turn to highest thrower, if current thrower is out of cards then dont include them.
-    //         update = updateStillPlaying(cardsLeft, stillPlaying, currTurnIndex);
-    //         tempTurn = sortPlayersBasedOnCardThrown(cardsOnTable, stillPlaying)[0].thrower;
-    //     }else{
-    //         //highest card thrower without the current thrower as next turn/collector
-    //         let sorted = sortPlayersBasedOnCardThrown(cardsOnTable, stillPlaying);
-    //         tempTurn = sorted.filter(item => item.thrower !== turn)[0].thrower
-    //         update = updateStillPlaying(cardsLeft, stillPlaying, currTurnIndex);
-    //     }
-    //     update.push(tempTurn);
-    //     return update;
-    // }
     let roomReq = res.locals.roomInfo.room
     let cardThrown = req.body.card;
     let requestingUserIndex = res.locals.index;
@@ -276,7 +242,7 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
                         requestingUserCards = updateArray(requestingUserCards, thrownCardIndex);
                         //highest card thrower without the current thrower as next turn/collector
                         console.log("turn befgore: ", turn)
-                        turn = sortPlayersBasedOnCardThrown(cardsOnTable, stillPlaying).filter((item) => item.thrower !== turn)[0].thrower;
+                        turn = (sortPlayersBasedOnCardThrown(cardsOnTable, stillPlaying).filter((item) => item.thrower !== turn))[0].thrower;
                         console.log("turn after: ", turn)
                         turn = sorted;
                         stillPlaying = updateStillPlaying(requestingUserCards.length, stillPlaying, currTurnIndex);
