@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppComponent } from '../app.component';
 import { AuthService } from '../auth.service';
-import { ChatService } from '../chat.service';
 import { GameService } from '../game.service';
 
 @Component({
@@ -28,7 +27,6 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     private game: GameService,
     private router: Router,
     private app: AppComponent,
-    private chat: ChatService,
     private auth: AuthService
   ) { }
 
@@ -167,12 +165,12 @@ export class GameviewComponent implements OnInit, AfterViewInit {
 
     gcCTX.font = (this.fontSize*3) + "px" + " Arial bolder"
     gcCTX.fillStyle = "black"
-    gcCTX.fillText(loser+" IS THE LOSER!!!", 0, this.canvasHeight/2, this.canvasWidth-10)
+    gcCTX.fillText(loser+" IS THE LOSER!!!", 0, (this.fontSize*3), this.canvasWidth-10)
 
-    gcCTX.fillRect(this.canvasWidth/2,this.canvasHeight/2,this.wr/2,this.hr/2)
+    gcCTX.fillRect((this.canvasWidth/2)-(this.wr/2), this.canvasHeight/2,this.wr/2,this.hr/2)
     gcCTX.font = this.fontSize + "px" + " Arial bolder"
-    gcCTX.fillStyle = "black"
-    gcCTX.fillText("Play Again", this.canvasWidth/2,this.canvasHeight/2, this.wr/2)
+    gcCTX.fillStyle = "white"
+    gcCTX.fillText("Play Again", (this.canvasWidth/2)-(this.wr/2), (this.canvasHeight/2)+this.fontSize, this.wr/2)
   }
 
   ngOnInit() {

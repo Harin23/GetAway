@@ -64,7 +64,7 @@ router.post('/shuffle', middleware.verifyToken, middleware.getUsername, middlewa
                     room.deck2 = deck.slice(26,39);
                     room.deck3 = deck.slice(39,52);
                     room.cardsShuffled = true;
-                    room.currentRound = {thrower: "noONE", card: "blank"}
+                    room.currentRound = {thrower: 9, card: "blank"}
                     room.currTurn = turn;
                     room.stillPlaying = [0, 1, 2, 3];
                     room.save()
@@ -116,7 +116,7 @@ router.post('/getgameinfo', middleware.verifyToken, middleware.getUsername, midd
                     res.status(200).send({gameover: true, loser: name})
                 }else{
                     let loserName = otherUsers.filter(obj=>{
-                        obj.deck === loserDeck;
+                        return obj.deck === loserDeck;
                     })[0].user;
                     res.status(200).send({gameover: true, loser: loserName})
                 }
@@ -195,7 +195,7 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
                 let currTurnIndex = stillPlaying.indexOf(turn);
                 if(thrownCardIndex !== -1 && stillPlaying.length > 1){
                     //before updating cards on table, check if throw is valid, if so which case it falls under:
-                    if(cardsOnTable[0].card === "blank" || cardsOnTable.length === 4){
+                    if(cardsOnTable[0].card === "blank" || cardsOnTable.length === 4 || cardsOnTable.length === stillPlaying.length){
                         //case1: The card thrown will be the first of the round, so its suit does not matter at this point.
                         //cardsOnTable = updateCardsOnTable(cardsOnTable, cardThrown, turn);
                         cardsOnTable = [];
@@ -244,14 +244,13 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
                         console.log("turn befgore: ", turn)
                         turn = (sortPlayersBasedOnCardThrown(cardsOnTable, stillPlaying).filter((item) => item.thrower !== turn))[0].thrower;
                         console.log("turn after: ", turn)
-                        turn = sorted;
                         stillPlaying = updateStillPlaying(requestingUserCards.length, stillPlaying, currTurnIndex);
                         let collectorDeck = gameRoom["deck"+turn];
                         pickUpAmount = Math.min((13-collectorDeck.length), cardsOnTable.length)
                         for(let i=pickUpAmount-1; i>=0; i--){
                             collectorDeck.push(cardsOnTable[i].card)
                         }
-                        cardsOnTable = [{thrower: "noONE", card: "blank"}];
+                        cardsOnTable = [{thrower: 9, card: "blank"}];
                         gameRoom.currentRound = cardsOnTable;
                         gameRoom[assignedDeckName] = requestingUserCards;
                         gameRoom.currTurn = turn;
