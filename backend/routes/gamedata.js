@@ -67,6 +67,7 @@ router.post('/shuffle', middleware.verifyToken, middleware.getUsername, middlewa
                     room.currentRound = {thrower: 9, card: "blank"}
                     room.currTurn = turn;
                     room.stillPlaying = [0, 1, 2, 3];
+                    room.cardsReq = 4;
                     room.save()
                     res.status(200).send({cardsShuffled: true})
                 })       
@@ -193,15 +194,19 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
                 let requestingUserCards = gameRoom[assignedDeckName];
                 let thrownCardIndex = requestingUserCards.indexOf(cardThrown);
                 let currTurnIndex = stillPlaying.indexOf(turn);
+                let cardsReq = gameRoom.cardsReq;
                 if(thrownCardIndex !== -1 && stillPlaying.length > 1){
                     //before updating cards on table, check if throw is valid, if so which case it falls under:
-                    if(cardsOnTable[0].card === "blank" || cardsOnTable.length === 4 || cardsOnTable.length === stillPlaying.length){
+                    if(cardsOnTable[0].card === "blank" || cardsOnTable.length === cardsReq){
                         //case1: The card thrown will be the first of the round, so its suit does not matter at this point.
                         //cardsOnTable = updateCardsOnTable(cardsOnTable, cardThrown, turn);
                         cardsOnTable = [];
                         cardsOnTable.push({thrower: turn, card: cardThrown})
                         requestingUserCards = updateArray(requestingUserCards, thrownCardIndex);
                         turn = updateSequentialTurn(stillPlaying, currTurnIndex);
+                        //total requirement for cards on table to end current round has to be updated at the
+                        //beginning of each round before updating stillPlaying.
+                        gameRoom.cardsReq = stillPlaying.length;
                         stillPlaying = updateStillPlaying(requestingUserCards.length, stillPlaying, currTurnIndex);//stillPlaying has to be updated after the seq turn update
                         gameRoom.currentRound = cardsOnTable;
                         gameRoom[assignedDeckName] = requestingUserCards;
@@ -216,7 +221,7 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
                         requestingUserCards = updateArray(requestingUserCards, thrownCardIndex);
                         //update turn sequentially if last card in the round was not thrown
                         //if it was then, update turn to the highest card thrower still playing
-                        if(cardsOnTable.length === 4){//last card of the round just thrown
+                        if(cardsOnTable.length === cardsReq){//last card of the round just thrown
                             //updating stillPlaying first allows the highest card thrower array to include or not include the current thrower if they are or arent in the game.
                             stillPlaying = updateStillPlaying(requestingUserCards.length, stillPlaying, currTurnIndex);
                             turn = sortPlayersBasedOnCardThrown(cardsOnTable, stillPlaying)[0].thrower;
