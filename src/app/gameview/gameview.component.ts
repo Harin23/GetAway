@@ -171,6 +171,12 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     gcCTX.font = this.fontSize + "px" + " Arial bolder"
     gcCTX.fillStyle = "white"
     gcCTX.fillText("Play Again", (this.canvasWidth/2)-(this.wr/2), (this.canvasHeight/2)+this.fontSize, this.wr/2)
+
+    let gamecanvas = this.getCanvas();
+    gamecanvas.addEventListener("click", (e)=>{
+      this.playAgain(e);
+    });
+
   }
 
   ngOnInit() {
@@ -264,34 +270,34 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     )
   }
 
-  // playAgain(e: MouseEvent){
-  //   if(e.x > this.canvasWidth/2 && e.x < (this.canvasWidth/2)+this.wr/2){
-  //     if(e.y > this.canvasHeight/2 && e.y < (this.canvasHeight/2)+this.hr/2){
-  //       this.game.shuffle().subscribe(
-  //         res=>{
-  //           if(res["shuffled"] === true){
-  //             this.game.getGameInfo().subscribe(
-  //               res=>{
-  //                 this.drawTable();
-  //                 this.placeCardOnTable(res["cardOnTable"]);
-  //                 this.displayDeck(res["assignedDeck"]);
-  //                 this.displayOtherUsers(res["otherUsers"]);
-  //                 this.game.joinRoom(res["roomReq"]);
-  //                 let gamecanvas = this.getCanvas();
-  //                 gamecanvas.removeEventListener("click", this.playAgain)
-  //                 gamecanvas.addEventListener("click", this.throwCard)   
-  //               },
-  //               err=>{
-  //                 console.log(err)
-  //               }
-  //             ) 
-  //           }        
-  //         },
-  //           err=>{console.log(err)}
-  //       )
-  //     }
-  //   }
-  // }
+  playAgain(e: MouseEvent){
+    if(e.x > (this.canvasWidth/2)-(this.wr/2) && e.x < this.canvasWidth/2){
+      if(e.y > this.canvasHeight/2 && e.y < (this.canvasHeight/2)+this.hr/2){
+        this.game.shuffle().subscribe(
+          res=>{
+            if(res["shuffled"] === true){
+              this.game.getGameInfo().subscribe(
+                res=>{
+                  this.drawTable();
+                  this.placeCardOnTable(res["cardOnTable"]);
+                  this.displayDeck(res["assignedDeck"]);
+                  this.displayOtherUsers(res["otherUsers"]);
+                  this.game.joinRoom(res["roomReq"]);
+                  let gamecanvas = this.getCanvas();
+                  gamecanvas.removeEventListener("click", this.playAgain)
+                  gamecanvas.addEventListener("click", this.throwCard)   
+                },
+                err=>{
+                  console.log(err)
+                }
+              ) 
+            }        
+          },
+            err=>{console.log(err)}
+        )
+      }
+    }
+  }
 
   ngOnDestroy(): void{
     this.subscription1$.unsubscribe();
