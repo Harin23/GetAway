@@ -276,21 +276,22 @@ export class GameviewComponent implements OnInit, AfterViewInit {
         this.game.shuffle().subscribe(
           res=>{
             if(res["shuffled"] === true){
-              this.game.getGameInfo().subscribe(
-                res=>{
-                  this.drawTable();
-                  this.placeCardOnTable(res["cardOnTable"]);
-                  this.displayDeck(res["assignedDeck"]);
-                  this.displayOtherUsers(res["otherUsers"]);
-                  this.game.joinRoom(res["roomReq"]);
-                  let gamecanvas = this.getCanvas();
-                  gamecanvas.removeEventListener("click", this.playAgain)
-                  gamecanvas.addEventListener("click", this.throwCard)   
-                },
-                err=>{
-                  console.log(err)
-                }
-              ) 
+              window.location.reload()
+              // this.game.getGameInfo().subscribe(
+              //   res=>{
+              //     this.drawTable();
+              //     this.placeCardOnTable(res["cardOnTable"]);
+              //     this.displayDeck(res["assignedDeck"]);
+              //     this.displayOtherUsers(res["otherUsers"]);
+              //     this.game.joinRoom(res["roomReq"]);
+              //     let gamecanvas = this.getCanvas();
+              //     gamecanvas.removeEventListener("click", this.playAgain)
+              //     gamecanvas.addEventListener("click", this.throwCard)   
+              //   },
+              //   err=>{
+              //     console.log(err)
+              //   }
+              // ) 
             }        
           },
             err=>{console.log(err)}
