@@ -8,7 +8,7 @@ const gamedataSchema = new mongoose.Schema({
     deck3: [String],
     deckAssignments: {deck0: String, deck1: String, deck2: String, deck3: String},
     currentRound: [{
-        thrower: String,
+        thrower: Number,
         card: String
     }],
     stillPlaying: [Number],

@@ -159,14 +159,14 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
     function sortPlayersBasedOnCardThrown(cardsOnTable, stillPlaying){
         //ensure everything passed into this func is updated before calling this
         let sorted = cardsOnTable.slice(0)
-        sorted.sort((a, b) =>{
+        sorted = sorted.sort((a, b) =>{
             var valA = getCardValue(a.card);
             var valB = getCardValue(b.card);
             return valB - valA;
-        });
-        sorted = sorted.filter(item =>{
+        }).filter(item =>{
             return stillPlaying.indexOf(item.thrower) !== -1
         });
+        console.log("before sorting: ", cardsOnTable, "after: ", sorted)
         return sorted;
     }
 
@@ -275,8 +275,10 @@ router.post('/throwcard', middleware.verifyToken, middleware.getUsername, middle
                         cardsOnTable.unshift({thrower: turn, card: cardThrown});
                         requestingUserCards = updateArray(requestingUserCards, thrownCardIndex);
                         //highest card thrower without the current thrower as next turn/collector
-                        let sorted = sortPlayersBasedOnCardThrown(cardsOnTable, stillPlaying);
-                        turn = sorted.filter(item => item.thrower !== turn)[0].thrower;
+                        console.log("turn befgore: ", turn)
+                        turn = sortPlayersBasedOnCardThrown(cardsOnTable, stillPlaying).filter((item) => item.thrower !== turn)[0].thrower;
+                        console.log("turn after: ", turn)
+                        turn = sorted;
                         stillPlaying = updateStillPlaying(requestingUserCards.length, stillPlaying, currTurnIndex);
                         let collectorDeck = gameRoom["deck"+turn];
                         pickUpAmount = Math.min((13-collectorDeck.length), cardsOnTable.length)
