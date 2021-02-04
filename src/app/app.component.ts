@@ -100,6 +100,10 @@ export class AppComponent {
     let lobbyNav = document.getElementById("lobby");
     lobbyNav.classList.remove("disabled");
   }
+  gameNav(){
+    let joinedRoom = sessionStorage.getItem('room')
+    this.router.navigateByUrl(`/gameview/${joinedRoom}`)
+  }
 
   leftTheChat(room: string, username: string){
     this.chat.emitMessage({room: room, message: " has left the room", username: username})

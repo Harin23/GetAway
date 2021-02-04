@@ -73,7 +73,7 @@ router.post('/shuffle', middleware.verifyToken, middleware.getUsername, middlewa
                 })       
             }else{
                 if(shuffled === true){
-                    res.status(400).send("Cards already shuffled")
+                    res.status(200).send({cardsShuffled: true})
                 }else{
                     res.status(400).send("Only room leader can shuffle cards")
                 }

@@ -8,6 +8,7 @@ import { GameviewComponent } from "./gameview/gameview.component";
 import { LoginComponent } from "./login/login.component";
 import { RegisterComponent } from "./register/register.component";
 import { AuthGuard } from './auth.guard';
+import { RoomGuard } from './room.guard';
 
 const routes: Routes = [
   {path: '', 
@@ -30,12 +31,12 @@ const routes: Routes = [
 
   {path: 'join/:id', 
   component: JoinComponent,
-  canActivate: [AuthGuard]
+  canActivate: [AuthGuard, RoomGuard]
   },
 
-  {path: 'gameview', 
+  {path: 'gameview/:id', 
   component: GameviewComponent,
-  canActivate: [AuthGuard]
+  canActivate: [AuthGuard, RoomGuard]
   },
 
   {path: '**', 

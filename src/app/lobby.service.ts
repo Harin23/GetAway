@@ -43,4 +43,12 @@ export class LobbyService {
   clearLobby(){
     return this.http.post(this.clearLobbyURL, {responseType: 'json'})
   }
+
+  userInRoom(){
+    if(sessionStorage.getItem("roomJoined") === "false"){
+      return false;
+    }else{
+      return true;
+    }
+  }
 }

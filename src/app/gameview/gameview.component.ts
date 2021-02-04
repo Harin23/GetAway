@@ -185,6 +185,7 @@ export class GameviewComponent implements OnInit, AfterViewInit {
     this.auth.getUserInfo().subscribe(
       res=>{
         this.game.joinRoom(res["room"]);
+        this.router.navigateByUrl(`/gameview/${res["room"]}`)
       },
       err=>{console.log(err)}
     );
@@ -275,23 +276,9 @@ export class GameviewComponent implements OnInit, AfterViewInit {
       if(e.y > this.canvasHeight/2 && e.y < (this.canvasHeight/2)+this.hr/2){
         this.game.shuffle().subscribe(
           res=>{
-            if(res["shuffled"] === true){
-              window.location.reload()
-              // this.game.getGameInfo().subscribe(
-              //   res=>{
-              //     this.drawTable();
-              //     this.placeCardOnTable(res["cardOnTable"]);
-              //     this.displayDeck(res["assignedDeck"]);
-              //     this.displayOtherUsers(res["otherUsers"]);
-              //     this.game.joinRoom(res["roomReq"]);
-              //     let gamecanvas = this.getCanvas();
-              //     gamecanvas.removeEventListener("click", this.playAgain)
-              //     gamecanvas.addEventListener("click", this.throwCard)   
-              //   },
-              //   err=>{
-              //     console.log(err)
-              //   }
-              // ) 
+            console.log(res)
+            if(res["cardsShuffled"] === true){
+              location.reload();
             }        
           },
             err=>{console.log(err)}
