@@ -5,7 +5,7 @@ const lobbyModel = require('../models/lobby');
 const gamedataModel = require('../models/gamedata');
 const middleware = require('./middleware');
 
-db_uri = "mongodb+srv://harin_getaway_game24:vWey6Oa4D9wOzDY7@getaway.svfza.mongodb.net/getaway-users?retryWrites=true&w=majority"
+db_uri = process.env.DB
 mongoose.connect(db_uri, {useNewUrlParser: true, useUnifiedTopology: true }, error => {
     if (error){
         console.log(error)
